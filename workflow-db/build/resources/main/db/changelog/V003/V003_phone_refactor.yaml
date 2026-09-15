@@ -1,0 +1,141 @@
+databaseChangeLog:
+  - changeSet:
+      id: v003-01-rename-phone-contacts-to-phone-contact
+      author: BBO
+      changes:
+        # 1) Rename table -> IDs & data stay intact
+        - renameTable:
+            oldTableName: phone_contacts
+            newTableName: phone_contact
+
+        # 2) Drop columns you don't want to keep
+        - dropColumn:
+            tableName: phone_contact
+            columnName: firstname
+        - dropColumn:
+            tableName: phone_contact
+            columnName: lastname
+        - dropColumn:
+            tableName: phone_contact
+            columnName: company
+        - dropColumn:
+            tableName: phone_contact
+            columnName: label
+
+        # 3) Rebuild unique constraint with a clean name
+        # (the old constraint name is uq_phone_contacts_phone_number)
+        - dropUniqueConstraint:
+            tableName: phone_contact
+            constraintName: uq_phone_contacts_phone_number
+        - addUniqueConstraint:
+            tableName: phone_contact
+            columnNames: phone_number
+            constraintName: uq_phone_contact_phone_number
+
+      rollback:
+        # Rollback is best-effort: we can rename back, but we cannot restore dropped data.
+        - dropUniqueConstraint:
+            tableName: phone_contact
+            constraintName: uq_phone_contact_phone_number
+        - addUniqueConstraint:
+            tableName: phone_contact
+            columnNames: phone_number
+            constraintName: uq_phone_contacts_phone_number
+
+        - addColumn:
+            tableName: phone_contact
+            columns:
+              - column:
+                  name: firstname
+                  type: varchar(120)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: lastname
+                  type: varchar(120)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: company
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: label
+                  type: varchar(120)
+                  constraints:
+                    nullable: true
+
+        - renameTable:
+            oldTableName: phone_contact
+            newTableName: phone_contacts
+
+
+  - changeSet:
+      id: v003-02-update-phone-logs-fk-to-phone-contact
+      author: BBO
+      changes:
+        # We explicitly drop and recreate FKs so the constraint names are clean
+        # and Liquibase has an explicit history of the change.
+        - dropForeignKeyConstraint:
+            baseTableName: phone_logs
+            constraintName: fk_phone_logs_forfait_contact
+        - dropForeignKeyConstraint:
+            baseTableName: phone_logs
+            constraintName: fk_phone_logs_caller_contact
+        - dropForeignKeyConstraint:
+            baseTableName: phone_logs
+            constraintName: fk_phone_logs_destination_contact
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_logs
+            baseColumnNames: forfait_contact_id
+            referencedTableName: phone_contact
+            referencedColumnNames: id
+            constraintName: fk_phone_logs_forfait_contact
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_logs
+            baseColumnNames: caller_contact_id
+            referencedTableName: phone_contact
+            referencedColumnNames: id
+            constraintName: fk_phone_logs_caller_contact
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_logs
+            baseColumnNames: destination_contact_id
+            referencedTableName: phone_contact
+            referencedColumnNames: id
+            constraintName: fk_phone_logs_destination_contact
+
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: phone_logs
+            constraintName: fk_phone_logs_forfait_contact
+        - dropForeignKeyConstraint:
+            baseTableName: phone_logs
+            constraintName: fk_phone_logs_caller_contact
+        - dropForeignKeyConstraint:
+            baseTableName: phone_logs
+            constraintName: fk_phone_logs_destination_contact
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_logs
+            baseColumnNames: forfait_contact_id
+            referencedTableName: phone_contacts
+            referencedColumnNames: id
+            constraintName: fk_phone_logs_forfait_contact
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_logs
+            baseColumnNames: caller_contact_id
+            referencedTableName: phone_contacts
+            referencedColumnNames: id
+            constraintName: fk_phone_logs_caller_contact
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_logs
+            baseColumnNames: destination_contact_id
+            referencedTableName: phone_contacts
+            referencedColumnNames: id
+            constraintName: fk_phone_logs_destination_contact

@@ -1,0 +1,98 @@
+<aside
+  class="sidebar relative h-full select-none
+         bg-white/75 dark:bg-slate-900/70 backdrop-blur-md
+         border-r border-slate-200/70 dark:border-slate-800
+         transition-[width] duration-300 ease-out overflow-y-auto"
+  [class.w-72]="!embedded && !collapsed"
+  [class.w-[72px]]="!embedded && collapsed"
+  [class.is-collapsed]="collapsed">
+
+  <!-- HEADER LOGO -->
+  <div class="sidebar-logo h-16 flex items-center justify-center py-4">
+    @if (!collapsed) {
+      <img
+        src="assets/logo.png"
+        alt="SAAMP"
+        class="h-10 md:h-12 w-auto mx-4 transition-all duration-300"/>
+    }
+    @if (collapsed) {
+      <img
+        src="assets/logo.png"
+        alt="SAAMP"
+        class="h-6 w-auto transition-all duration-300"/>
+    }
+  </div>
+
+  <!-- ACCUEIL -->
+  <div class="px-3 pt-2">
+    <a class="group nav-item flex items-center gap-3 rounded-lg px-3 py-2
+            text-[14px] text-slate-700 dark:text-slate-200
+            hover:bg-slate-50/80 dark:hover:bg-white/5 transition-colors relative"
+       routerLink="/home"
+       routerLinkActive="active"
+       [matTooltip]="collapsed ? 'Accueil' : ''" matTooltipPosition="right">
+      <mat-icon class="opacity-90 group-[.active]:text-[#5b1e66]">
+        home
+      </mat-icon>
+      <span class="truncate" [class.hidden]="collapsed">Accueil</span>
+      <span class="active-bar absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px]
+             rounded-full bg-gradient-to-b from-[#5b1e66] to-[#18081b]
+             opacity-0 group-[.active]:opacity-100 transition-opacity"></span>
+    </a>
+  </div>
+
+  <!-- SECTIONS -->
+  <div class="px-3">
+    @for (s of sections; track s.title) {
+      <div class="mt-4">
+        <!-- TITRE DE SECTION -->
+        <div class="px-1 text-[11px] font-semibold uppercase tracking-widest text-[#5b1e66]"
+             [class.hidden]="collapsed">
+          {{ s.title }}
+        </div>
+        <div class="h-[1px] mx-1 mt-1 bg-gradient-to-r from-[#9231a3]/70 to-transparent
+            dark:from-[#18081b]/40" [class.hidden]="collapsed"></div>
+
+
+        <!-- ITEMS -->
+        <nav class="mt-1">
+          @for (it of s.items; track it.link) {
+            <a class="group nav-item flex items-center gap-3 rounded-lg px-3 py-2
+                      text-[14px] text-slate-600 dark:text-slate-300
+                      hover:bg-slate-50/80 dark:hover:bg-white/5 transition-colors relative"
+               [routerLink]="it.link"
+               routerLinkActive="active"
+               [routerLinkActiveOptions]="{ exact: false }"
+               [matTooltip]="collapsed ? it.label : ''" matTooltipPosition="right">
+
+              <mat-icon class="text-[20px] opacity-90 group-[.active]:text-[#5b1e66]">
+                {{ it.icon }}
+              </mat-icon>
+              <span class="truncate" [class.hidden]="collapsed">{{ it.label }}</span>
+
+              <span class="active-bar absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px]
+                           rounded-full bg-gradient-to-b from-[#5b1e66] to-[#18081b]
+                           opacity-0 group-[.active]:opacity-100 transition-opacity"></span>
+            </a>
+          }
+        </nav>
+      </div>
+    }
+  </div>
+
+  <!-- BOUTON COLLAPSE -->
+  <div class="absolute bottom-5 left-0 right-0 flex justify-center">
+    <button
+      class="h-10 w-10 grid place-items-center rounded-full border
+             border-slate-200/80 dark:border-slate-700/60
+             bg-white/70 dark:bg-slate-800/60
+             hover:bg-white dark:hover:bg-slate-800 transition"
+      (click)="toggle()"
+      [matTooltip]="collapsed ? 'Déplier' : 'Replier'">
+      <mat-icon class="transition-transform"
+                [style.transform]="collapsed ? 'rotate(180deg)' : 'rotate(0deg)'">
+        chevron_left
+      </mat-icon>
+    </button>
+  </div>
+</aside>

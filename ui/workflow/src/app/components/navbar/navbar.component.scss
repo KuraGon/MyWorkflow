@@ -1,0 +1,83 @@
+:host { display: block; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ticker très doux (~70s la boucle) */
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.animate-ticker { width: max-content; animation: ticker 70s linear infinite; }
+
+/* === Quote bar === */
+.quotebar { position: relative; }
+.viewport {
+  position: relative;
+  overflow: hidden;
+  padding: .5rem 1rem;      /* py-2 px-4 */
+}
+.track {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;               /* espace entre pastilles */
+  will-change: transform;
+}
+
+/* pastille “chip” compacte, lisible */
+.quote-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .25rem .6rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  font-size: .78rem;        /* ~text-xs+ */
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.quote-chip .badge {
+  display: grid; place-items: center;
+  width: 18px; height: 18px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,.95);
+  border: 1px solid rgba(0,0,0,.06);
+  font-size: 10px;
+}
+.quote-chip .price { font-variant-numeric: tabular-nums; font-weight: 600; }
+.quote-chip .unit  { opacity: .65; }
+.quote-chip .sep   { opacity: .5; }
+.quote-chip .fix   { opacity: .75; }
+.quote-chip .spot  { opacity: .6; display: none; }
+@media (min-width: 768px) { .quote-chip .spot { display: inline; } }
+
+/* palettes sobres (tu les as déjà) */
+/* Viewport qui masque le débordement */
+.ticker-viewport,
+.viewport {
+  overflow: hidden;
+  position: relative;
+  contain: content;
+}
+
+/* La piste qui défile */
+.ticker-track,
+.track {
+  display: inline-flex;
+  gap: .75rem;
+  will-change: transform;
+  animation: ticker-scroll 30s linear infinite;
+}
+
+/* Pause au survol du viewport */
+.ticker-viewport:hover .ticker-track,
+.viewport:hover .track {
+  animation-play-state: paused;
+}
+
+/* Si tu as dupliqué le contenu dans ton HTML (séquence A + séquence A)
+   ça boucle parfaitement. Sinon, duplique les éléments côté template. */
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); } /* -50% = largeur d'une des deux séquences */
+}
+
+/* Optionnel: adoucir le GPU */
+.track { backface-visibility: hidden; transform: translateZ(0); }

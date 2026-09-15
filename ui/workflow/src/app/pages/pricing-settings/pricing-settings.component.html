@@ -1,0 +1,214 @@
+<div class="container mx-auto p-4 md:p-8">
+
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">
+    Paramétrage des Tarifs
+  </h1>
+
+  <mat-stepper [linear]="true" #stepper class="rounded-lg shadow-lg">
+
+    <mat-step label="Choisir la Nature" [editable]="true">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold mb-4 text-gray-900">Étape 1: Quelle nature de déchet ?</h2>
+        <mat-list class="max-h-[60vh] overflow-y-auto border rounded-md bg-white">
+          @if (natures$ | async; as natures) {
+            @for (nature of natures; track nature.id) {
+              <mat-list-item
+                (click)="onNatureSelected(nature); stepper.next()"
+                class="cursor-pointer hover:bg-blue-50 border-b last:border-b-0"
+                [ngClass]="{'bg-blue-100 font-medium': selectedNature?.id === nature.id}">
+                <mat-icon matListItemIcon
+                          [class.text-gray-500]="selectedNature?.id !== nature.id"
+                          [class.text-blue-600]="selectedNature?.id === nature.id"> {{ getNatureIcon(nature.libelle) }}
+                </mat-icon>
+                <div matListItemTitle class="text-gray-900">{{ nature.libelle }}</div>
+                @if (nature.commentaire) {
+                  <div matListItemLine class="text-sm text-gray-500 italic">{{ nature.commentaire }}</div>
+                }
+              </mat-list-item>
+            }
+          }
+        </mat-list>
+      </div>
+    </mat-step>
+
+    <mat-step label="Choisir le Type" [editable]="true">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold mb-1 text-gray-900">
+          Étape 2: Pour la nature <span class="font-bold text-[color:var(--mat-sys-primary)]">"{{ selectedNature?.libelle }}"</span>
+        </h2>
+        <p class="text-gray-700 mb-6">Quel type de tarification voulez-vous gérer ?</p>
+        <mat-radio-group class="flex flex-col md:flex-row gap-6" (change)="onTypeSelected($event.value); stepper.next()" color="primary">
+          <mat-card class="flex-1 cursor-pointer hover:shadow-md transition-shadow rounded-lg" [ngClass]="selectedRuleType === 'FORFAIT' ? 'border-2 border-[color:var(--mat-sys-primary)]' : 'border-2 border-transparent'">
+            <mat-radio-button value="FORFAIT" [checked]="selectedRuleType === 'FORFAIT'" class="w-full">
+              <div class="p-4">
+                <div class="text-lg font-medium text-gray-900">Tarif au FORFAIT</div>
+                <p class="text-sm text-gray-600 mt-1">Package tout-en-un (ex: 92€ pour 100g).</p>
+              </div>
+            </mat-radio-button>
+          </mat-card>
+          <mat-card class="flex-1 cursor-pointer hover:shadow-md transition-shadow rounded-lg" [ngClass]="selectedRuleType === 'PRESTATION' ? 'border-2 border-[color:var(--mat-sys-primary)]' : 'border-2 border-transparent'">
+            <mat-radio-button value="PRESTATION" [checked]="selectedRuleType === 'PRESTATION'" class="w-full">
+              <div class="p-4">
+                <div class="text-lg font-medium text-gray-900">Tarif à la PRESTATION</div>
+                <p class="text-sm text-gray-600 mt-1">Services séparés (Affinage, Analyse, Fonte...).</p>
+              </div>
+            </mat-radio-button>
+          </mat-card>
+        </mat-radio-group>
+        <div class="mt-8">
+          <button mat-button (click)="stepper.previous()">Retour</button>
+        </div>
+      </div>
+    </mat-step>
+
+    <mat-step label="Choisir la Règle" [editable]="true">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold mb-4 text-gray-900">Étape 3: Quelles conditions ?  <span class="font-bold text-[color:var(--mat-sys-primary)]">"{{ selectedNature?.libelle }}"</span></h2>
+
+        @if (isLoadingRules) {
+          <mat-progress-bar mode="indeterminate" color="primary" class="my-4"></mat-progress-bar>
+        }
+
+        @if (rules$ | async; as rules) {
+          @if (rules.length > 0) {
+            <div class="max-h-[60vh] overflow-y-auto border rounded-md bg-white">
+              <table mat-table [dataSource]="rules" class="w-full">
+
+                <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef class="text-left text-sm font-medium text-gray-600 p-4">Description de la Règle</th>
+                  <td mat-cell *matCellDef="let rule" class="p-4 font-medium">{{ rule.description }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="gold">
+                  <th mat-header-cell *matHeaderCellDef class="text-left text-sm font-medium text-gray-600 p-4">Titre Or (‰)</th>
+                  <td mat-cell *matCellDef="let rule" class="p-4 text-gray-700">{{ rule.pctAuMin }} - {{ rule.pctAuMax }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="silver">
+                  <th mat-header-cell *matHeaderCellDef class="text-left text-sm font-medium text-gray-600 p-4">Titre Argent (‰)</th>
+                  <td mat-cell *matCellDef="let rule" class="p-4 text-gray-700">{{ rule.pctAgMin }} - {{ rule.pctAgMax }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="platinum">
+                  <th mat-header-cell *matHeaderCellDef class="text-left text-sm font-medium text-gray-600 p-4">Titre Platine (‰)</th>
+                  <td mat-cell *matCellDef="let rule" class="p-4 text-gray-700">
+                    @if (rule.pctPtMax > 0) { {{ rule.pctPtMin }} - {{ rule.pctPtMax }} } @else { - }
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="palladium">
+                  <th mat-header-cell *matHeaderCellDef class="text-left text-sm font-medium text-gray-600 p-4">Titre Palladium (‰)</th>
+                  <td mat-cell *matCellDef="let rule" class="p-4 text-gray-700">
+                    @if (rule.pctPdMax > 0) { {{ rule.pctPdMin }} - {{ rule.pctPdMax }} } @else { - }
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedRuleColumns" class="bg-gray-50"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedRuleColumns;" (click)="onRuleSelected(row); stepper.next()" class="cursor-pointer hover:bg-blue-50 transition-colors"></tr>
+              </table>
+            </div>
+          } @else {
+            <mat-card class="bg-yellow-50 border border-yellow-200">
+              <mat-card-content class="flex items-center gap-4">
+                <mat-icon class="text-yellow-600">warning</mat-icon>
+                <span class="text-yellow-800">Aucune règle de type <span class="font-medium">{{selectedRuleType}}</span> trouvée pour cette nature.</span>
+              </mat-card-content>
+            </mat-card>
+          }
+        }
+        <div class="mt-8">
+          <button mat-button (click)="stepper.previous()">Retour</button>
+        </div>
+      </div>
+    </mat-step>
+
+    <mat-step label="Éditer les Prix" [editable]="true">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold mb-1 text-gray-900">
+          Étape 4: Éditer les grilles
+        </h2>
+        <p class="text-gray-700">
+          Nature: <span class="font-bold text-[color:var(--mat-sys-primary)]">{{ selectedNature?.libelle }}</span>
+        </p>
+        <p class="text-gray-700 mb-6">
+          Règle: <span class="font-bold text-[color:var(--mat-sys-primary)]">{{ selectedRule?.description }}</span>
+        </p>
+
+        @if (isLoadingGrids) {
+          <mat-progress-bar mode="indeterminate" color="primary" class="my-4"></mat-progress-bar>
+        }
+
+        <form [formGroup]="gridForm" (ngSubmit)="saveChanges()">
+          <div formArrayName="grids" class="space-y-8">
+            @for (grid of getGridsArray().controls; track grid; let i = $index) {
+              @if (getPriceBreaksArray(i).controls.length > 0 && !(getPriceBreaksArray(i).controls[0].value.prixBrutMin === 0 && grid.value.ruleCode === 'D0')) {
+                <div [formGroupName]="i">
+                  <h3 class="text-md font-bold text-gray-800 mb-2 uppercase tracking-wide">{{ getGridTitle(grid.value.ruleCode) }}</h3>
+                  <div class="overflow-x-auto border border-gray-300 rounded-sm shadow-sm">
+                    <table class="w-full text-sm text-left text-gray-700">
+                      <thead class="text-xs text-gray-700 uppercase bg-gray-100 border-b border-gray-300">
+                      <tr>
+                        <th scope="col" class="px-4 py-3 border-r border-gray-300 w-1/5">Poids Min (g)</th>
+                        <th scope="col" class="px-4 py-3 border-r border-gray-300 w-1/5">Poids Max (g)</th>
+                        <th scope="col" class="px-4 py-3 border-r border-gray-300 w-1/5">Prix / kg (€)</th>
+                        <th scope="col" class="px-4 py-3 border-r border-gray-300 w-1/5">Prix Min (€)</th>
+                        <th scope="col" class="px-4 py-3 w-[100px] text-center">Actions</th>
+                      </tr>
+                      </thead>
+                      <tbody formArrayName="priceBreaks" class="bg-white">
+                        @for (break of getPriceBreaksArray(i).controls; track break; let j = $index) {
+                          <tr [formGroupName]="j" class="border-b border-gray-200 hover:bg-gray-50 transition-colors h-[50px]">
+                            <td class="px-4 py-1 border-r border-gray-200">
+                              @if (isEditing(i, j)) {
+                                <input type="number" formControlName="pdsMin" class="w-full p-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                              } @else { <span class="font-medium">{{ break.value.pdsMin }}</span> }
+                            </td>
+                            <td class="px-4 py-1 border-r border-gray-200">
+                              @if (isEditing(i, j)) {
+                                <input type="number" formControlName="pdsMax" class="w-full p-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                              } @else { <span>{{ break.value.pdsMax }}</span> }
+                            </td>
+                            <td class="px-4 py-1 border-r border-gray-200 font-mono text-right text-blue-700">
+                              @if (isEditing(i, j)) {
+                                <input type="number" formControlName="prixBrutKg" class="w-full p-1 text-sm text-right border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                              } @else { <span>{{ break.value.prixBrutKg | number:'1.2-2' }} €</span> }
+                            </td>
+                            <td class="px-4 py-1 border-r border-gray-200 font-mono text-right text-green-700">
+                              @if (isEditing(i, j)) {
+                                <input type="number" formControlName="prixBrutMin" class="w-full p-1 text-sm text-right border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                              } @else { <span>{{ break.value.prixBrutMin | number:'1.2-2' }} €</span> }
+                            </td>
+                            <td class="px-4 py-1 text-center">
+                              @if (isEditing(i, j)) {
+                                <button type="button" (click)="stopEdit()" class="text-green-600 hover:text-green-800 p-1 rounded-full hover:bg-green-100"><mat-icon class="text-sm scale-75">check</mat-icon></button>
+                              } @else {
+                                <div class="flex justify-center gap-2">
+                                  <button type="button" (click)="startEdit(i, j)" class="text-gray-500 hover:text-blue-600 p-1 rounded-full hover:bg-blue-50"><mat-icon class="text-sm scale-75">edit</mat-icon></button>
+                                  <button type="button" class="text-gray-400 hover:text-red-600 p-1 rounded-full hover:bg-red-50"><mat-icon class="text-sm scale-75">delete</mat-icon></button>
+                                </div>
+                              }
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                    <div class="bg-gray-50 p-2 border-t border-gray-200 text-center">
+                      <button type="button" class="text-xs font-bold uppercase text-blue-600 hover:text-blue-800 flex items-center justify-center gap-1 mx-auto">
+                        <mat-icon class="text-sm scale-75 h-4 w-4">add</mat-icon> Ajouter une tranche
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+          <div class="flex justify-end gap-4 mt-8 pt-4 border-t border-gray-200">
+            <button mat-button type="button" (click)="stepper.previous()">Retour</button>
+            <button mat-flat-button color="primary" type="submit">Enregistrer les modifications</button>
+          </div>
+        </form>
+      </div>
+    </mat-step>
+
+  </mat-stepper>
+</div>

@@ -1,0 +1,89 @@
+@if (!auth.getAuthHeader()) {
+  <app-auth-layout
+    title="Inscription"
+    subtitle="Créez votre compte"
+  >
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Nom</mat-label>
+          <input matInput formControlName="lastName" autocomplete="family-name" />
+          @if (form.controls['lastName'].touched && form.controls['lastName'].invalid) {
+            <mat-error>Nom requis</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Prénom</mat-label>
+          <input matInput formControlName="firstName" autocomplete="given-name" />
+          @if (form.controls['firstName'].touched && form.controls['firstName'].invalid) {
+            <mat-error>Prénom requis</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field class="w-full" appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" autocomplete="email" />
+        @if (form.controls['email'].touched && form.controls['email'].invalid) {
+          <mat-error>Email invalide</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field class="w-full" appearance="outline">
+        <mat-label>Mot de passe</mat-label>
+        <input
+          matInput
+          [type]="hidePassword ? 'password' : 'text'"
+          formControlName="password"
+          autocomplete="new-password"
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matSuffix
+          (click)="hidePassword = !hidePassword"
+        >
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+
+        @if (form.controls['password'].touched && form.controls['password'].invalid) {
+          <mat-error>Mot de passe requis</mat-error>
+        }
+      </mat-form-field>
+
+      @if (error) {
+        <div class="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">
+          {{ error }}
+        </div>
+      }
+
+      <button
+        mat-flat-button
+        type="submit"
+        class="w-full !h-11 !rounded-lg"
+        [disabled]="loading"
+        color="primary"
+      >
+        @if (!loading) {
+          Créer un compte
+        } @else {
+          <span class="inline-flex items-center gap-2">
+            <mat-progress-spinner diameter="18" mode="indeterminate" />
+            Création…
+          </span>
+        }
+      </button>
+
+      <div class="text-center text-sm text-slate-500">
+        Déjà un compte ?
+        <a
+          routerLink="/login"
+          class="text-[#9E46AF] hover:text-purple-800 font-medium"
+        >
+          Se connecter
+        </a>
+      </div>
+    </form>
+  </app-auth-layout>
+}

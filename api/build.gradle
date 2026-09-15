@@ -1,0 +1,80 @@
+plugins {
+    id 'org.openapi.generator' version '7.7.0'
+    id 'java-library'
+}
+
+repositories { mavenCentral() }
+
+def genRoot = "$projectDir/src/generated"          // <- racine de génération
+def genJava = "$genRoot/src/main/java"             // <- correspond à TON screenshot
+def genRes  = "$genRoot/src/main/resources"
+def tsOutDir = "${rootProject.projectDir}/ui/workflow/src/app/api"
+
+openApiGenerate {
+    generatorName  = "spring"
+    inputSpec      = "$projectDir/src/main/openapi/openapi.yaml"
+    outputDir      = genRoot                                 // <- important
+
+    apiPackage     = "com.workflow.api"
+    modelPackage   = "com.workflow.dto"
+    invokerPackage = "com.workflow.invoker"
+    modelNameSuffix = 'DTO'
+    configOptions = [
+            useSpringBoot3       : "true",
+            interfaceOnly        : "true",
+            useTags              : "true",
+            dateLibrary          : "java8",
+            performBeanValidation: "true",
+            useLombok            : "true",
+            singleContentTypes   : "true",
+            documentationProvider: "none",
+            openApiNullable      : "false"
+    ]
+    globalProperties = [ apiDocs: "false", modelDocs: "false" ]
+}
+
+// 👉 déclare EXACTEMENT les dossiers où tu génères
+sourceSets {
+    main {
+        java.srcDir(genJava)
+        resources.srcDir(genRes)
+    }
+}
+
+tasks.register("openApiGenerateTs", org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+    generatorName = "typescript-angular"
+    inputSpec = "${project.projectDir}/src/main/openapi/openapi.yaml"
+    outputDir  = tsOutDir
+    modelNameSuffix = 'DTO'
+    additionalProperties = [
+            ngVersion           : "20.0.0",
+            providedInRoot      : "true",
+            apiModulePrefix     : "Workflow",
+            stringEnums         : "true",
+            enumPropertyNaming  : "UPPERCASE",
+            supportsES6         : "true"
+    ]
+
+    // nettoie le dossier cible pour éviter les reliquats
+    doFirst {
+        def dir = file(tsOutDir)
+        if (dir.exists()) {
+            dir.deleteDir()
+        }
+    }
+}
+
+
+// assure l’ordre des tâches
+tasks.named('compileJava')     { dependsOn(tasks.named('openApiGenerate')) }
+tasks.named('compileJava')     { dependsOn(tasks.named('openApiGenerateTs')) }
+tasks.named('processResources'){ dependsOn(tasks.named('openApiGenerate')) }
+tasks.named('processResources'){ dependsOn(tasks.named('openApiGenerateTs')) }
+tasks.named('clean')           { delete genRoot }
+
+dependencies {
+    api 'org.springframework.boot:spring-boot-starter-web'
+    api 'org.springframework.boot:spring-boot-starter-validation'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+}

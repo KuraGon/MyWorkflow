@@ -1,0 +1,105 @@
+databaseChangeLog:
+  - changeSet:
+      id: V002-create-groupe-nature-table
+      author: BBO
+      changes:
+        # --- Étape 1 : Créer la table 'groupe_nature' ---
+        - createTable:
+            tableName: groupe_nature
+            columns:
+              - column:
+                  name: groupe_nature_ident
+                  type: varchar(10) # Utiliser varchar pour correspondre à la BDD Oracle
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: groupe_nature_lib
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: commentaire
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+
+        # --- Étape 2 : Insérer les 14 lignes de données de référence ---
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "1" }
+              - column: { name: groupe_nature_lib, value: "or fonte simple" }
+              - column: { name: commentaire, value: "composants métalliques or" }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "2" }
+              - column: { name: groupe_nature_lib, value: "argent fonte simple" }
+              - column: { name: commentaire, value: "composants métalliques argent" }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "4" }
+              - column: { name: groupe_nature_lib, value: "chlorure" }
+              - column: { name: commentaire, value: null }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "5" }
+              - column: { name: groupe_nature_lib, value: "fonte complexe" }
+              - column: { name: commentaire, value: "limailles et dentaires" }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "6" }
+              - column: { name: groupe_nature_lib, value: "platine" }
+              - column: { name: commentaire, value: "platinoïdes" }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "7" }
+              - column: { name: groupe_nature_lib, value: "bas titre" }
+              - column: { name: commentaire, value: "en dessous de 15% de précieux" }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "8" }
+              - column: { name: groupe_nature_lib, value: "fondu et titré" }
+              - column: { name: commentaire, value: null }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "9" }
+              - column: { name: groupe_nature_lib, value: "fondu non titré" }
+              - column: { name: commentaire, value: null }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "10" }
+              - column: { name: groupe_nature_lib, value: "Natif" }
+              - column: { name: commentaire, value: "minerai" }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "11" }
+              - column: { name: groupe_nature_lib, value: "a bruler" }
+              - column: { name: commentaire, value: "matière non métallique à incinérer" }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "12" }
+              - column: { name: groupe_nature_lib, value: "cendres" }
+              - column: { name: commentaire, value: null }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "15" }
+              - column: { name: groupe_nature_lib, value: "desserti" }
+              - column: { name: commentaire, value: "bijoux empierrés à dessertir chmiquement" }
+        - insert:
+            tableName: groupe_nature
+            columns:
+              - column: { name: groupe_nature_ident, value: "16" }
+              - column: { name: groupe_nature_lib, value: "bain" }
+              - column: { name: commentaire, value: null }

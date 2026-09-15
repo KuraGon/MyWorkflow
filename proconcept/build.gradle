@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.saamp.proconcept'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // --- Dépendances Spring Boot Essentielles ---
+    // Elle inclut JPA (@Entity) et JDBC (@JdbcTemplate).
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // --- Pilotes JDBC ---
+    // Pilote Oracle (déjà présent)
+    implementation 'com.oracle.database.jdbc:ojdbc8:23.4.0.24.05'
+
+    // Pilote PostgreSQL (basé sur votre application.yml)
+    implementation 'org.postgresql:postgresql'
+
+    // Pilote MySQL (basé sur votre application.yml)
+    // Assurez-vous que la version est compatible si vous en spécifiez une
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+
+    // --- Lombok (pour @Data, @Getter, @Setter) ---
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+
+    // --- Dépendances de test ---
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}

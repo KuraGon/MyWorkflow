@@ -1,0 +1,44 @@
+.left-bg {
+  background:
+    radial-gradient(
+        circle at 20% 20%,
+        rgba(255, 255, 255, 0.15),
+        transparent 45%
+    ),
+    linear-gradient(
+        135deg,
+        #e59646 0%,   // violet profond
+        #e5b346 30%,  // violet électrique
+        #9731aa 65%,  // indigo doux
+        #9e46af 100%  // indigo final
+    );
+}
+
+
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(48px);
+  opacity: 0.35;
+}
+
+.blob--1 {
+  width: 24rem;
+  height: 24rem;
+  background: rgba(255, 255, 255, 0.25);
+  top: -6rem;
+  left: -6rem;
+}
+
+.blob--2 {
+  width: 28rem;
+  height: 28rem;
+  background: rgba(0, 0, 0, 0.25);
+  bottom: -7rem;
+  right: -7rem;
+}
+
+/* MatCard tweak for nicer look */
+:host ::ng-deep mat-card {
+  overflow: hidden;
+}

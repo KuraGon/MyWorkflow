@@ -1,0 +1,106 @@
+// Déclaration des plugins
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+    id 'war'
+}
+
+group = 'com.saamp'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+// Dépendances du projet (API, DB, Spring, etc.)
+dependencies {
+    // Modules internes
+    implementation project(':api')
+    implementation project(':workflow-db')
+    implementation project(':proconcept')
+    implementation project(':olddb')
+
+    // Dépendances Spring et Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Outils de mapping et utilitaires
+    implementation 'org.mapstruct:mapstruct:1.6.2'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.2'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    // Tests
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // Pour l'installation WAR sur Tomcat externe
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// --- CONFIGURATION FRONTEND (ANGULAR) ---
+
+// Chemin vers le dossier Angular
+def uiDir = file("${project.rootDir}/ui/workflow")
+
+// Tâche 1 : Installer les dépendances NPM
+task npmInstall(type: Exec) {
+    workingDir uiDir
+    inputs.file("${uiDir}/package.json")
+    outputs.dir("${uiDir}/node_modules")
+
+    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+        commandLine 'npm.cmd', 'install'
+    } else {
+        commandLine 'npm', 'install'
+    }
+}
+
+// Tâche 2 : Construire le projet Angular (npm run build)
+task npmBuild(type: Exec) {
+    dependsOn npmInstall
+    // Assure que l'API TS est générée AVANT le build Angular
+    dependsOn ':api:openApiGenerateTs'
+
+    workingDir uiDir
+    inputs.dir("${uiDir}/src")
+    outputs.dir("${uiDir}/dist")
+
+    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+        commandLine 'npm.cmd', 'run', 'build'
+    } else {
+        commandLine 'npm', 'run', 'build'
+    }
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    dependsOn npmBuild
+    dependsOn ':api:openApiGenerateTs'
+
+    from('src/main/resources') {
+        include '**/*'
+    }
+
+    from("${uiDir}/dist/workflow/browser") {
+        into 'static'
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+            "-Amapstruct.unmappedTargetPolicy=IGNORE"
+    ]
+}

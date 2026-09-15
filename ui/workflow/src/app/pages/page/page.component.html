@@ -1,0 +1,29 @@
+<mat-sidenav-container class="app-shell" [autosize]="true">
+
+  <!-- sidenav gauche-->
+  <mat-sidenav #snav
+               [mode]="(isHandset | async) ? 'over' : 'side'"
+               [opened]="!(isHandset | async)"
+               [fixedInViewport]="(isHandset | async) || false"
+               [style.width.px]="sideWidth()"
+               class="side-surface">
+
+    <app-sidebar
+      class="h-full w-full block"
+      [embedded]="true"
+      [collapsed]="collapsed()"
+      (collapsedChange)="collapsed.set($event)">
+    </app-sidebar>
+  </mat-sidenav>
+
+  <!-- Le contenu (NE doit PAS scroller) -->
+  <mat-sidenav-content class="content-surface">
+    <div class="toolbar-sticky">
+      <app-navbar></app-navbar>
+    </div>
+    <main class="page p-4 md:p-6">
+      <router-outlet></router-outlet>
+    </main>
+    <app-footer></app-footer>
+  </mat-sidenav-content>
+</mat-sidenav-container>

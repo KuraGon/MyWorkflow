@@ -1,0 +1,58 @@
+plugins {
+    id 'com.github.node-gradle.node' version '7.0.2'
+}
+
+node {
+    // Versions Node/npm locales au projet (pas besoin d'installer globalement)
+    version = '22.11.0'
+    npmVersion = '10.9.2'
+    download = true
+    // Ton package.json / angular.json sont à la racine du module ui
+    nodeProjectDir = file("${projectDir}")
+}
+// DEV SERVER : ng serve (inchangé)
+tasks.register('serveAngular', com.github.gradle.node.npm.task.NpmTask) {
+    dependsOn tasks.npmInstall
+    group = "ui"
+    description = "Start Angular dev server (ng serve)"
+    args = ['run', 'start']
+}
+
+// BUILD PROD : ng build (inchangé)
+tasks.register('buildAngular', com.github.gradle.node.npm.task.NpmTask) {
+    dependsOn tasks.npmInstall
+    group = "ui"
+    description = "Build Angular app for production"
+    args = ['run', 'build', '--', '--configuration=production']
+}
+
+// CLEAN du dist Angular (inchangé)
+tasks.register('cleanAngular', Delete) {
+    group = "ui"
+    description = "Clean Angular dist directory"
+    delete file("${projectDir}/dist")
+}
+
+// COPY vers Spring Boot static (inchangé)
+tasks.register('copyAngularToWebStatic', Copy) {
+    dependsOn tasks.named('buildAngular')
+    group = "ui"
+    description = "Copy Angular dist into Spring Boot static assets"
+    from("${projectDir}/dist/my-saamp")            // adapte le nom si besoin
+    into("${rootProject.projectDir}/web-api/src/main/resources/static")
+}
+
+// PIPELINE complet : build + copy (inchangé)
+tasks.register('packageUiIntoWeb') {
+    group = "ui"
+    description = "Build Angular and package into Spring static folder"
+    dependsOn 'copyAngularToWebStatic'
+}
+
+tasks.named('build') {
+    dependsOn 'buildAngular'
+}
+
+tasks.named('clean') {
+    dependsOn 'cleanAngular'
+}

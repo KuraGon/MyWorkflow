@@ -1,0 +1,510 @@
+<div class="h-full w-full px-10 py-8 text-slate-900">
+  <div class="max-w-6xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-start justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold text-slate-900">Historique des suivis téléphoniques</h1>
+        <p class="text-sm text-slate-500 mt-1">
+          Historique paginé + stats globales (sur toute la période filtrée).
+        </p>
+      </div>
+    </div>
+
+    <!-- Sélection ligne -->
+    <mat-card class="saamp-card">
+      <div class="p-6 flex flex-wrap items-center gap-4 justify-between">
+        <div class="flex items-center gap-2">
+          <mat-icon class="text-[#5b1e66]">phone_android</mat-icon>
+          <span class="text-sm font-medium text-slate-700">Sélectionnez une ligne téléphonique</span>
+        </div>
+
+        <div class="w-full md:w-96">
+          <mat-form-field class="w-full saamp-form-field">
+            <mat-label>Ligne (forfait)</mat-label>
+            <mat-select [value]="selectedUserId" (valueChange)="onForfaitChange($event)">
+              <mat-option [value]="null">—</mat-option>
+              @for (contact of forfaitContacts; track contact.id) {
+                <mat-option [value]="contact.id">
+                  {{ formatForfaitLabel(contact) }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Filtre période -->
+    @if (selectedUserId) {
+      <mat-card class="saamp-card">
+        <div class="p-6 flex flex-wrap items-center justify-between gap-4">
+          <div class="text-sm font-medium text-slate-700">Période</div>
+
+          <div class="flex items-center gap-2">
+            <mat-form-field class="w-80 !m-0 saamp-date-range-field">
+              <mat-label>Du / Au</mat-label>
+
+              <mat-date-range-input
+                [rangePicker]="rangePicker"
+                [formGroup]="dateRange"
+                #rangeInput="matDateRangeInput"
+                (click)="rangePicker.open()"
+              >
+                <input matStartDate formControlName="start" placeholder="Du" (click)="rangePicker.open()"/>
+                <input matEndDate formControlName="end" placeholder="Au" (click)="rangePicker.open()"/>
+              </mat-date-range-input>
+
+              <button mat-icon-button matSuffix type="button" (click)="rangePicker.open()">
+                <mat-icon>event</mat-icon>
+              </button>
+
+              <mat-date-range-picker #rangePicker></mat-date-range-picker>
+            </mat-form-field>
+
+            <button
+              mat-icon-button
+              type="button"
+              (click)="onResetDateRange()"
+              matTooltip="Réinitialiser la période"
+            >
+              <mat-icon>restart_alt</mat-icon>
+            </button>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Tabs -->
+      <mat-card class="saamp-card">
+        <div class="p-6">
+          <mat-tab-group>
+            <mat-tab label="KPI">
+              <div class="pt-4 space-y-4">
+                @if (isLoadingSalesRep) {
+                  <div class="text-xs text-slate-400">Chargement…</div>
+                } @else if (!salesRepStats) {
+                  <div class="text-xs text-slate-400">Aucune donnée commercial.</div>
+                } @else {
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                    <!-- KPI -->
+                    <div class="border border-slate-100 rounded-2xl p-5 bg-white shadow-sm">
+                      <div class="flex items-center justify-between mb-3">
+                        <div class="text-sm font-semibold text-slate-800">KPIs commercial</div>
+                        <div class="text-xs text-slate-400">Sur la période</div>
+                      </div>
+
+                      <div class="text-xs text-slate-600 space-y-3">
+
+                        <!-- Temps d’appel + sparkline total activity -->
+                        <div class="flex items-center justify-between gap-3">
+                          <span class="shrink-0">Temps d’appel cumulé</span>
+                          <span class="font-semibold text-slate-900 tabular-nums">
+                            {{ formatDuration(salesRepStats.kpi.totalCallDurationSec) }}
+                          </span>
+                        </div>
+
+                        <!-- Nb d’appels + sparkline calls -->
+                        <div class="flex items-center justify-between gap-3">
+                          <span class="shrink-0">Nombre d’appels</span>
+                          <div class="flex items-center gap-3">
+                            <svg
+                              class="w-20 h-6"
+                              [attr.viewBox]="'0 0 ' + kpiSparkCalls.w + ' ' + kpiSparkCalls.h"
+                              matTooltip="Profil horaire des appels (0h–23h)"
+                              matTooltipPosition="above"
+                            >
+                              <polyline
+                                [attr.points]="kpiSparkCalls.points"
+                                fill="none"
+                                stroke="#10b981"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                            <span class="font-semibold text-slate-900 tabular-nums">
+                              {{ salesRepStats.kpi.totalCalls }}
+                            </span>
+
+                          </div>
+                        </div>
+
+                        <div class="flex items-center justify-between" matTooltip="Weekend et nuit (21h à 7h)">
+                          <span>Nombre d'appels W/N</span>
+                          <span class="font-semibold text-slate-900 tabular-nums">
+                            {{ salesRepStats.kpi.totalCallsWeekEndAndNight }}
+                          </span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                          <span>Prospects uniques contactés</span>
+                          <span class="font-semibold text-slate-900 tabular-nums">
+                            {{ salesRepStats.kpi.uniqueProspects }}
+                          </span>
+                        </div>
+
+                        <!-- Ratio + camembert -->
+                        <div class="pt-4 mt-2 border-t border-slate-100">
+                          <div class="flex items-center justify-between mb-2">
+                            <div class="text-sm font-semibold text-slate-800">Ratio</div>
+                            <div class="text-[11px] text-slate-400">Clients / Interne / Inconnu</div>
+                          </div>
+
+                          @if (!hasRatioData) {
+                            <div class="text-xs text-slate-400">Aucune donnée ratio.</div>
+                          } @else {
+                            <div class="flex items-center gap-4">
+                              <svg class="w-28 h-28 shrink-0" viewBox="0 0 120 120" aria-label="Ratio">
+                                @for (s of ratioSlices; track s.key) {
+                                  <path
+                                    [attr.d]="s.path"
+                                    [attr.fill]="s.key === 'client' ? '#10b981' : s.key === 'internal' ? '#0ea5e9' : '#cbd5e1'"
+                                    stroke="#fff"
+                                    stroke-width="1"
+                                    class="cursor-pointer"
+                                    matTooltip="{{ s.label }} : {{ s.pct }}%"
+                                    matTooltipPosition="above"
+                                    matTooltipShowDelay="80"
+                                  ></path>
+                                }
+                              </svg>
+
+                              <div class="text-xs text-slate-700 space-y-1 w-full">
+                                <div class="flex items-center gap-2">
+                                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                  <span class="flex-1">Clients</span>
+                                  <span class="font-semibold text-slate-900 tabular-nums">
+                                    {{ salesRepStats.kpi.ratio.clientPct }}%
+                                  </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                  <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+                                  <span class="flex-1">Interne</span>
+                                  <span class="font-semibold text-slate-900 tabular-nums">
+                                    {{ salesRepStats.kpi.ratio.internalPct }}%
+                                  </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                  <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                                  <span class="flex-1">Inconnu</span>
+                                  <span class="font-semibold text-slate-900 tabular-nums">
+                                    {{ salesRepStats.kpi.ratio.unknownPct }}%
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        </div>
+
+                      </div>
+                    </div>
+
+                    <!-- Activité par heure -->
+                    <div class="border border-slate-100 rounded-2xl p-5 bg-white shadow-sm">
+                      <div class="flex items-center justify-between mb-2">
+                        <div class="text-sm font-semibold text-slate-800">Activité par heure</div>
+                        <div class="text-xs text-slate-400">Appels vs SMS</div>
+                      </div>
+
+                      @if (salesRepActivityByHourSorted.length === 0) {
+                        <div class="text-xs text-slate-400">Aucune activité.</div>
+                      } @else {
+                        <div class="activity-chart">
+                          <div class="activity-chart__legend">
+                            <div class="activity-chart__legend-item">
+                              <span class="activity-chart__dot activity-chart__dot--calls"></span>
+                              <span>Appels</span>
+                            </div>
+                            <div class="activity-chart__legend-item">
+                              <span class="activity-chart__dot activity-chart__dot--sms"></span>
+                              <span>SMS</span>
+                            </div>
+                          </div>
+
+                          <svg
+                            class="activity-chart__svg"
+                            [attr.viewBox]="'0 0 ' + activityChartViewBox.w + ' ' + activityChartViewBox.h"
+                            preserveAspectRatio="none"
+                            role="img"
+                            aria-label="Graphe d'activité par heure (appels et SMS)"
+                          >
+                            <defs>
+                              <linearGradient id="callsFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#10b981" stop-opacity="0.22"/>
+                                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                              </linearGradient>
+                              <linearGradient id="smsFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.18"/>
+                                <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/>
+                              </linearGradient>
+                            </defs>
+
+                            <!-- grid + y labels -->
+                            @for (t of activityChartYTicks; track t.label) {
+                              <line
+                                class="activity-chart__grid"
+                                [attr.x1]="activityChartPadding.l"
+                                [attr.x2]="activityChartViewBox.w - activityChartPadding.r"
+                                [attr.y1]="t.y"
+                                [attr.y2]="t.y"
+                              />
+                              <text
+                                class="activity-chart__y-label"
+                                [attr.x]="activityChartPadding.l - 10"
+                                [attr.y]="t.y + 4"
+                                text-anchor="end"
+                              >{{ t.label }}
+                              </text>
+                            }
+
+                            <!-- x ticks -->
+                            @for (t of activityChartXTicks; track t.label) {
+                              <text
+                                class="activity-chart__x-label"
+                                [attr.x]="t.x"
+                                [attr.y]="activityChartViewBox.h - 12"
+                                text-anchor="middle"
+                              >{{ t.label }}
+                              </text>
+                            }
+
+                            <!-- areas -->
+                            <path class="activity-chart__area activity-chart__area--calls"
+                                  [attr.d]="activityChartCallsAreaPath"/>
+                            <path class="activity-chart__area activity-chart__area--sms"
+                                  [attr.d]="activityChartSmsAreaPath"/>
+
+                            <!-- lines -->
+                            <polyline class="activity-chart__line activity-chart__line--calls"
+                                      [attr.points]="activityChartCallsPolyline"/>
+                            <polyline class="activity-chart__line activity-chart__line--sms"
+                                      [attr.points]="activityChartSmsPolyline"/>
+
+                            <!-- points (matTooltip) -->
+                            @for (p of activityChartPoints; track p.hour) {
+                              <circle
+                                class="activity-chart__pt activity-chart__pt--calls"
+                                [attr.cx]="p.x"
+                                [attr.cy]="p.yCalls"
+                                r="4"
+                                matTooltip="{{ p.hour }}h • Appels: {{ p.calls }} • SMS: {{ p.sms }} • Total: {{ p.total }}"
+                                matTooltipPosition="above"
+                                matTooltipShowDelay="80"
+                              ></circle>
+
+                              <circle
+                                class="activity-chart__pt activity-chart__pt--sms"
+                                [attr.cx]="p.x"
+                                [attr.cy]="p.ySms"
+                                r="4"
+                                matTooltip="{{ p.hour }}h • Appels: {{ p.calls }} • SMS: {{ p.sms }} • Total: {{ p.total }}"
+                                matTooltipPosition="above"
+                                matTooltipShowDelay="80"
+                              ></circle>
+                            }
+                          </svg>
+                        </div>
+                      }
+                    </div>
+
+                  </div>
+                }
+              </div>
+            </mat-tab>
+            <mat-tab label="Correspondants">
+              <div class="pt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                <!-- Appels -->
+                <div class="border border-slate-100 rounded-2xl p-4 bg-white shadow-sm">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <mat-icon class="text-emerald-600">call</mat-icon>
+                      <span class="text-sm font-semibold text-slate-800">Appels par correspondant (global)</span>
+                    </div>
+                    @if (isLoadingStats) {
+                      <span class="text-xs text-slate-400">Chargement…</span>
+                    }
+                  </div>
+
+                  @if (!isLoadingStats && callStats.length === 0) {
+                    <p class="text-xs text-slate-400">Aucun appel sur cette période.</p>
+                  } @else {
+                    <div class="max-h-72 overflow-auto">
+                      <table class="w-full text-xs">
+                        <thead class="text-[11px] uppercase text-slate-500 border-b">
+                        <tr>
+                          <th class="py-1 text-left">Numéro</th>
+                          <th class="py-1 text-right">Nb</th>
+                          <th class="py-1 text-right">Durée</th>
+                          <th class="py-1 text-right">Coût</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                          @for (stat of callStats; track stat.number) {
+                            <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50">
+                              <td class="py-1.5 pr-2 font-medium text-slate-800" [matTooltip]="stat.number">
+                                @let name = stat.lastname ? stat.firstname + ' ' + stat.lastname : null;
+                                {{ name || stat.number }}
+                              </td>
+                              <td class="py-1.5 px-2 text-right">{{ stat.callCount }}</td>
+                              <td class="py-1.5 px-2 text-right">{{ formatDuration(stat.totalDurationSec) }}</td>
+                              <td class="py-1.5 pl-2 text-right">{{ stat.totalCostHt | number:'1.2-2' }} €</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                </div>
+
+                <!-- SMS -->
+                <div class="border border-slate-100 rounded-2xl p-4 bg-white shadow-sm">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <mat-icon class="text-sky-600">sms</mat-icon>
+                      <span class="text-sm font-semibold text-slate-800">SMS par correspondant (global)</span>
+                    </div>
+                    @if (isLoadingStats) {
+                      <span class="text-xs text-slate-400">Chargement…</span>
+                    }
+                  </div>
+
+                  @if (!isLoadingStats && smsStats.length === 0) {
+                    <p class="text-xs text-slate-400">Aucun SMS sur cette période.</p>
+                  } @else {
+                    <div class="max-h-72 overflow-auto">
+                      <table class="w-full text-xs">
+                        <thead class="text-[11px] uppercase text-slate-500 border-b">
+                        <tr>
+                          <th class="py-1 text-left">Numéro</th>
+                          <th class="py-1 text-right">Nb</th>
+                          <th class="py-1 text-right">Coût</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                          @for (stat of smsStats; track stat.number) {
+                            <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50">
+                              <td class="py-1.5 pr-2 font-medium text-slate-800" [matTooltip]="stat.number">
+                                @let name = stat.lastname ? stat.firstname + ' ' + stat.lastname : null;
+                                {{ name || stat.number }}
+                              </td>
+                              <td class="py-1.5 px-2 text-right">{{ stat.smsCount }}</td>
+                              <td class="py-1.5 pl-2 text-right">{{ stat.totalCostHt | number:'1.2-2' }} €</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                </div>
+
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      </mat-card>
+    }
+
+    <!-- Historique paginé -->
+    <mat-card class="saamp-card">
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-slate-900">Historique (paginé)</h2>
+        </div>
+
+        @if (!isLoadingLogs && paginatedLogs.length === 0) {
+          <p class="text-sm text-slate-400">Aucune communication trouvée pour ce filtre.</p>
+        } @else {
+          <div class="overflow-x-auto">
+            <div class="max-h-80 overflow-y-auto">
+              <table mat-table [dataSource]="paginatedLogs" class="min-w-full mat-elevation-z0">
+
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef class="saamp-th">Date</th>
+                  <td mat-cell *matCellDef="let row" class="saamp-td">
+                    {{ row.eventDate | date:'dd/MM/yyyy HH:mm' }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="direction">
+                  <th mat-header-cell *matHeaderCellDef class="saamp-th">Sens</th>
+                  <td mat-cell *matCellDef="let row" class="saamp-td">
+                    {{ row.direction }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="caller">
+                  <th mat-header-cell *matHeaderCellDef class="saamp-th">Appelant</th>
+                  <td
+                    mat-cell
+                    *matCellDef="let row"
+                    class="saamp-td"
+                    [ngClass]="{
+                                'text-blue-800 cursor-pointer': row.appelant?.company !== 'Saamp',
+                                'cursor-default': row.appelant?.company === 'Saamp'
+                              }"
+                    [matTooltip]="row.appelant?.phone?.phoneNumber"
+                    (click)="row.appelant?.company !== 'Saamp' && toDetail(row.appelant)"
+                  >
+                    {{ formatForfaitLabelLite(row.appelant) }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="destination">
+                  <th mat-header-cell *matHeaderCellDef class="saamp-th">Destination</th>
+                  <td
+                    mat-cell
+                    *matCellDef="let row"
+                    class="saamp-td"
+                    [ngClass]="{
+                                  'text-blue-800 cursor-pointer': row.destination?.company !== 'Saamp',
+                                  'cursor-default': row.destination?.company === 'Saamp'
+                                }"
+                    [matTooltip]="row.destination?.phone?.phoneNumber"
+                    (click)="row.destination?.company !== 'Saamp' && toDetail(row.destination)"
+                  >
+                    {{ formatForfaitLabelLite(row.destination) }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="duration">
+                  <th mat-header-cell *matHeaderCellDef class="saamp-th">Durée</th>
+                  <td mat-cell *matCellDef="let row" class="saamp-td">
+                    {{ formatDuration(row.durationSec) }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="cost">
+                  <th mat-header-cell *matHeaderCellDef class="saamp-th">Coût</th>
+                  <td mat-cell *matCellDef="let row" class="saamp-td">
+                    {{ formatCost(row.costHt) }}
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 text-xs text-slate-500">
+            <span>
+              Page {{ pageIndex + 1 }} / {{ totalPages }} • {{ totalElements }} lignes
+            </span>
+
+            <div class="flex gap-2">
+              <button mat-stroked-button color="primary" (click)="changePage(-1)" [disabled]="!canGoPrev">
+                Précédente
+              </button>
+              <button mat-stroked-button color="primary" (click)="changePage(1)" [disabled]="!canGoNext">
+                Suivante
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </mat-card>
+
+  </div>
+</div>

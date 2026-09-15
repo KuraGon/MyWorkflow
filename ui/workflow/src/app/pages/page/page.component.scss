@@ -1,0 +1,17 @@
+.app-shell { height: 100dvh; }
+
+.side-surface {
+  background: color-mix(in srgb, #ffffff 78%, transparent);
+  backdrop-filter: blur(8px);
+  border-right: 1px solid rgba(100,116,139,.25);
+  border-radius: unset !important;
+}
+
+/* La navbar reste collée en haut du CONTENT, donc elle se décale avec lui */
+.toolbar-sticky { position: sticky; top: 0; z-index: 20; }
+
+.content-surface {
+  background: linear-gradient(180deg, #f3f4f699, #f3f4f6ee);
+}
+.page { min-height: calc(100dvh - 11rem) !important; } /* ~ hauteur de la toolbar */
+

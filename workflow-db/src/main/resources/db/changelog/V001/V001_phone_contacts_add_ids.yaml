@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-phone-contacts
+      author: BBO
+      changes:
+        - addColumn:
+            tableName: phone_contacts
+            columns:
+              - column:
+                  name: id_prospect
+                  type: uuid
+              - column:
+                  name: id_client
+                  type: uuid

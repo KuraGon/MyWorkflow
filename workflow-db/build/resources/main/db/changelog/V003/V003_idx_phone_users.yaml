@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025-12-31-idx-phone-logs-forfait-contact
+      author: chatgpt
+      changes:
+        - createIndex:
+            tableName: phone_logs
+            indexName: idx_phone_logs_forfait_contact_id
+            columns:
+              - column:
+                  name: forfait_contact_id
+  - changeSet:
+      id: 2025-12-31-idx-phone-user-contact-fks
+      author: chatgpt
+      changes:
+        - createIndex:
+            tableName: phone_user
+            indexName: idx_phone_user_phone_pro_id
+            columns:
+              - column:
+                  name: phone_pro_id
+
+        - createIndex:
+            tableName: phone_user
+            indexName: idx_phone_user_phone_perso_id
+            columns:
+              - column:
+                  name: phone_perso_id
+
+        - createIndex:
+            tableName: phone_user
+            indexName: idx_phone_user_phone_telavox_id
+            columns:
+              - column:
+                  name: phone_telavox_id
+  - changeSet:
+      id: 2025-12-31-idx-phone-user-last-first
+      author: chatgpt
+      changes:
+        - createIndex:
+            tableName: phone_user
+            indexName: idx_phone_user_lastname_firstname
+            columns:
+              - column:
+                  name: lastname
+              - column:
+                  name: firstname

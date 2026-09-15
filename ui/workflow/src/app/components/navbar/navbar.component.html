@@ -1,0 +1,40 @@
+<!-- BARRE PRINCIPALE -->
+<mat-toolbar
+  class="!min-h-16 bg-white/80 dark:bg-slate-900/70 backdrop-blur-md
+         px-3 md:px-6 border-b border-slate-200/70 dark:border-slate-800 gap-3">
+
+
+  <!-- espace flexible -->
+  <div class="flex-1"></div>
+
+
+  <!-- Profil utilisateur -->
+  <div class="flex items-center gap-2 pl-1 shrink-0">
+    <button mat-button class="rounded-full px-2 !text-slate-700 dark:!text-slate-200 hover:!text-[#5b1e66] transition"
+            [matMenuTriggerFor]="profile">
+      <div class="flex items-center gap-3 ">
+        <div class="h-9 w-9 rounded-full bg-[#5b1e66] dark:bg-slate-700 grid place-items-center
+                text-white group-hover:text-[#5b1e66] transition">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div class="hidden sm:block text-left leading-4">
+          <div class="text-slate-700 dark:text-slate-100 text-sm font-medium truncate max-w-[160px]">
+            {{ userName }}
+          </div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[160px]">
+            {{ userSite }}
+          </div>
+        </div>
+      </div>
+    </button>
+
+    <!-- menu utilisateur -->
+    <mat-menu #profile="matMenu" class="min-w-[320px]">
+      <mat-divider></mat-divider>
+      <button (click)="authService.logout()" mat-menu-item color="warn" [routerLink]="'/landing'">
+        <mat-icon class="mr-3 text-rose-400">logout</mat-icon>
+        Déconnexion
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>

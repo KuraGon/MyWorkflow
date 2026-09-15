@@ -1,0 +1,97 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-phone-user
+      author: BBO
+      changes:
+        - createTable:
+            tableName: phone_user
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              # Identité
+              - column:
+                  name: firstname
+                  type: varchar(120)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: lastname
+                  type: varchar(120)
+                  constraints:
+                    nullable: true
+
+              # Personne morale
+              - column:
+                  name: denomination
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: company
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+
+              # Liens vers phone_contact (les 3 numéros)
+              - column:
+                  name: phone_pro_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: phone_perso_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: phone_telavox_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: phone_other_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_user
+            baseColumnNames: phone_pro_id
+            referencedTableName: phone_contact
+            referencedColumnNames: id
+            constraintName: fk_phone_user_phone_pro
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_user
+            baseColumnNames: phone_perso_id
+            referencedTableName: phone_contact
+            referencedColumnNames: id
+            constraintName: fk_phone_user_phone_perso
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_user
+            baseColumnNames: phone_telavox_id
+            referencedTableName: phone_contact
+            referencedColumnNames: id
+            constraintName: fk_phone_user_phone_telavox
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_user
+            baseColumnNames: phone_other_id
+            referencedTableName: phone_contact
+            referencedColumnNames: id
+            constraintName: fk_phone_user_phone_other
+
+      rollback:
+        - dropTable:
+            tableName: phone_user

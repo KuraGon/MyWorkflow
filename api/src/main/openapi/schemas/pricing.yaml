@@ -1,0 +1,287 @@
+# Contient tous les DTOs relatifs à la tarification Oracle
+
+TarifAffinageP:
+  type: object
+  description: Tarif principal (par % métaux) liant les codes de tarifs détaillés.
+  properties:
+    id: { type: integer, format: int64 }
+    dicGcoAttributeFree06Id: { type: string }
+    codeTarifPAff: { type: string }
+    codeTarifPAna: { type: string }
+    codeTarifPHom: { type: string }
+    codeTarifPPre: { type: string }
+    pctAuMin: { type: number }
+    pctAuMax: { type: number }
+    pctAgMin: { type: number }
+    pctAgMax: { type: number }
+    pctPtMin: { type: number }
+    pctPtMax: { type: number }
+    pctPdMin: { type: number }
+    pctPdMax: { type: number }
+    pctRhMin: { type: number }
+    pctRhMax: { type: number }
+    pctIrMin: { type: number }
+    pctIrMax: { type: number }
+    commentaire: { type: string, nullable: true }
+    dateCreation: { type: string, format: date-time }
+    idCreation: { type: string }
+    dateModification: { type: string, format: date-time, nullable: true }
+    idModification: { type: string, nullable: true }
+
+TarifAffinagePAff:
+  type: object
+  description: Détail des tarifs d'affinage 'P' (par poids).
+  properties:
+    id: { type: integer, format: int64 }
+    codeTarifPAff: { type: string }
+    pacThirdId: { type: integer, format: int64, nullable: true }
+    pdsMin: { type: number }
+    pdsMax: { type: number }
+    prixBrutKg: { type: number }
+    prixBrutMin: { type: number }
+    pctAuPerteMin: { type: number }
+    pdsAuPerteMinKg: { type: number }
+    pdsAuPerteMinLot: { type: number }
+    pctAgPerteMin: { type: number }
+    pdsAgPerteMinKg: { type: number }
+    pdsAgPerteMinLot: { type: number }
+    pctPtPerteMin: { type: number }
+    pdsPtPerteMinKg: { type: number }
+    pdsPtPerteMinLot: { type: number }
+    pctPdPerteMin: { type: number }
+    pdsPdPerteMinKg: { type: number }
+    pdsPdPerteMinLot: { type: number }
+    pctRhPerteMin: { type: number }
+    pdsRhPerteMinKg: { type: number }
+    pdsRhPerteMinLot: { type: number }
+    pctIrPerteMin: { type: number }
+    pdsIrPerteMinKg: { type: number }
+    pdsIrPerteMinLot: { type: number }
+    commentaire: { type: string, nullable: true }
+    dateCreation: { type: string, format: date-time }
+    idCreation: { type: string }
+    dateModification: { type: string, format: date-time, nullable: true }
+    idModification: { type: string, nullable: true }
+
+TarifAffinagePAna:
+  type: object
+  description: Détail des tarifs d'analyse 'P' (par poids).
+  properties:
+    id: { type: integer, format: int64 }
+    codeTarifPAna: { type: string }
+    pacThirdId: { type: integer, format: int64, nullable: true }
+    pdsMin: { type: number }
+    pdsMax: { type: number }
+    prixBrutKg: { type: number }
+    prixBrutMin: { type: number }
+    commentaire: { type: string, nullable: true }
+    dateCreation: { type: string, format: date-time }
+    idCreation: { type: string }
+    dateModification: { type: string, format: date-time, nullable: true }
+    idModification: { type: string, nullable: true }
+
+TarifAffinagePHom:
+  type: object
+  description: Détail des tarifs d'homogénéisation 'P' (par poids).
+  properties:
+    id: { type: integer, format: int64 }
+    codeTarifPHom: { type: string }
+    pacThirdId: { type: integer, format: int64, nullable: true }
+    pdsMin: { type: number }
+    pdsMax: { type: number }
+    prixBrutKg: { type: number }
+    prixBrutMin: { type: number }
+    commentaire: { type: string, nullable: true }
+    dateCreation: { type: string, format: date-time }
+    idCreation: { type: string }
+    dateModification: { type: string, format: date-time, nullable: true }
+    idModification: { type: string, nullable: true }
+
+TarifAffinagePPre:
+  type: object
+  description: Détail des tarifs de préparation 'P' (par poids).
+  properties:
+    id: { type: integer, format: int64 }
+    codeTarifPPre: { type: string }
+    pacThirdId: { type: integer, format: int64, nullable: true }
+    pdsMin: { type: number }
+    pdsMax: { type: number }
+    prixBrutKg: { type: number }
+    prixBrutMin: { type: number }
+    commentaire: { type: string, nullable: true }
+    dateCreation: { type: string, format: date-time }
+    idCreation: { type: string }
+    dateModification: { type: string, format: date-time, nullable: true }
+    idModification: { type: string, nullable: true }
+
+TarifAffinageF:
+  type: object
+  description: Tarif 'F' (par % métaux).
+  properties:
+    id: { type: integer, format: int64 }
+    dicGcoAttributeFree06Id: { type: string }
+    codeTarif: { type: string }
+    pctAuMin: { type: number }
+    pctAuMax: { type: number }
+    pctAgMin: { type: number }
+    pctAgMax: { type: number }
+    pctPtMin: { type: number }
+    pctPtMax: { type: number }
+    pctPdMin: { type: number }
+    pctPdMax: { type: number }
+    pctRhMin: { type: number }
+    pctRhMax: { type: number }
+    pctIrMin: { type: number }
+    pctIrMax: { type: number }
+    commentaire: { type: string, nullable: true }
+    dateCreation: { type: string, format: date-time }
+    idCreation: { type: string }
+    dateModification: { type: string, format: date-time, nullable: true }
+    idModification: { type: string, nullable: true }
+
+TarifAffinageFDet:
+  type: object
+  description: Détail des tarifs 'F' (par poids).
+  properties:
+    id: { type: integer, format: int64 }
+    codeTarifDet: { type: string }
+    codeTarif: { type: string }
+    pacThirdId: { type: integer, format: int64, nullable: true }
+    pdsMin: { type: number }
+    pdsMax: { type: number }
+    prixBrutKg: { type: number }
+    prixBrutMin: { type: number }
+    pctAuPerteMin: { type: number }
+    pdsAuPerteMinKg: { type: number }
+    pdsAuPerteMinLot: { type: number }
+    pctAuDecote: { type: number }
+    pctAgPerteMin: { type: number }
+    pdsAgPerteMinKg: { type: number }
+    pdsAgPerteMinLot: { type: number }
+    pctAgDecote: { type: number }
+    pctPtPerteMin: { type: number }
+    pdsPtPerteMinKg: { type: number }
+    pdsPtPerteMinLot: { type: number }
+    pctPtDecote: { type: number }
+    pctPdPerteMin: { type: number }
+    pdsPdPerteMinKg: { type: number }
+    pdsPdPerteMinLot: { type: number }
+    pctPdDecote: { type: number }
+    pctRhPerteMin: { type: number }
+    pdsRhPerteMinKg: { type: number }
+    pdsRhPerteMinLot: { type: number }
+    pctRhDecote: { type: number }
+    pctIrPerteMin: { type: number }
+    pdsIrPerteMinKg: { type: number }
+    pdsIrPerteMinLot: { type: number }
+    pctIrDecote: { type: number }
+    commentaire: { type: string, nullable: true }
+    dateCreation: { type: string, format: date-time }
+    idCreation: { type: string }
+    dateModification: { type: string, format: date-time, nullable: true }
+    idModification: { type: string, nullable: true }
+TarifsPDetailsResponse:
+  type: object
+  description: "Réponse composite contenant les détails des tarifs 'P' (affinage, analyse, etc.)"
+  properties:
+    affinage:
+      type: array
+      items: { $ref: '#/TarifAffinagePAff' }
+    analyse:
+      type: array
+      items: { $ref: '#/TarifAffinagePAna' }
+    homogeneisation:
+      type: array
+      items: { $ref: '#/TarifAffinagePHom' }
+    preparation:
+      type: array
+      items: { $ref: '#/TarifAffinagePPre' }
+Nature:
+  type: object
+  description: "Représente un type de déchet (ex: limaille, cendres)"
+  properties:
+    id: { type: string, description: "L'identifiant de la nature (ex: '1', '5', '11')" }
+    libelle: { type: string, description: "Le nom (ex: or fonte simple)" }
+    commentaire: { type: string, nullable: true, description: "Exemple (ex: composants métalliques or)" }
+PriceBreak:
+  type: object
+  description: "Une seule ligne/tranche de prix dans une grille (basé sur _P_AFF et _F_DET)"
+  properties:
+    id: { type: integer, format: int64, description: "ID de la ligne de prix (ex: 4048, 2653)" }
+    pdsMin: { type: number }
+    pdsMax: { type: number }
+    prixBrutKg: { type: number }
+    prixBrutMin: { type: number }
+    # Champs de Perte (de _P_AFF et _F_DET)
+    pctAuPerteMin: { type: number, nullable: true }
+    pdsAuPerteMinKg: { type: number, nullable: true }
+    pdsAuPerteMinLot: { type: number, nullable: true }
+    pctAuDecote: { type: number, nullable: true }
+    pctAgPerteMin: { type: number, nullable: true }
+    pdsAgPerteMinKg: { type: number, nullable: true }
+    pdsAgPerteMinLot: { type: number, nullable: true }
+    pctAgDecote: { type: number, nullable: true }
+    pctPtPerteMin: { type: number, nullable: true }
+    pdsPtPerteMinKg: { type: number, nullable: true }
+    pdsPtPerteMinLot: { type: number, nullable: true }
+    pctPtDecote: { type: number, nullable: true }
+    pctPdPerteMin: { type: number, nullable: true }
+    pdsPdPerteMinKg: { type: number, nullable: true }
+    pdsPdPerteMinLot: { type: number, nullable: true }
+    pctPdDecote: { type: number, nullable: true }
+    pctRhPerteMin: { type: number, nullable: true }
+    pdsRhPerteMinKg: { type: number, nullable: true }
+    pdsRhPerteMinLot: { type: number, nullable: true }
+    pctRhDecote: { type: number, nullable: true }
+    pctIrPerteMin: { type: number, nullable: true }
+    pdsIrPerteMinKg: { type: number, nullable: true }
+    pdsIrPerteMinLot: { type: number, nullable: true }
+    pctIrDecote: { type: number, nullable: true }
+PriceGrid:
+  type: object
+  description: "Une grille de prix complète et éditable pour une règle"
+  properties:
+    ruleId: { type: integer, format: int64, description: "ID de la règle parente (F ou P)" }
+    ruleType: { type: string, enum: [FORFAIT, PRESTATION], description: "Type de règle (F ou P)" }
+    ruleCode: { type: string, description: "Le code de liaison (ex: 'ASP1', 'FSP1', 'L301')" }
+    priceBreaks:
+      type: array
+      items: { $ref: '#/PriceBreak' }
+TarifBaseCategory:
+  type: string
+  enum:
+    - BASE_OR                     # Or seul
+    - BASE_OR_ARGENT              # Or + Argent
+    - BASE_OR_PLATINOIDE          # Or + (Platine ou Palladium)
+    - BASE_OR_ARGENT_PLATINOIDE   # Or + Argent + (Platine ou Palladium)
+    - BASE_ARGENT                 # Argent seul
+    - BASE_ARGENT_PLATINOIDE      # Argent + (Platine ou Palladium)
+    - BASE_PLATINOIDE             # (Platine ou Palladium) sans Or ni Argent
+    - AUTRE                       # Aucun des métaux précieux principaux
+TarifRule:
+  type: object
+  properties:
+    id: { type: integer, format: int64 }
+    natureId: { type: string }
+    ruleType: { type: string, enum: [ FORFAIT, PRESTATION ] }
+    baseCategory: { $ref: '#/TarifBaseCategory' }
+    description: { type: string }
+    # Codes
+    codeTarifForfait: { type: string }
+    codeTarifAffinage: { type: string }
+    codeTarifAnalyse: { type: string }
+    codeTarifFonte: { type: string }
+    codeTarifPreparation: { type: string }
+    # Métaux
+    pctAuMin: { type: number, format: double }
+    pctAuMax: { type: number, format: double }
+    pctAgMin: { type: number, format: double }
+    pctAgMax: { type: number, format: double }
+    pctPtMin: { type: number, format: double }
+    pctPtMax: { type: number, format: double }
+    pctPdMin: { type: number, format: double }
+    pctPdMax: { type: number, format: double }
+    pctRhMin: { type: number, format: double }
+    pctRhMax: { type: number, format: double }
+    pctIrMin: { type: number, format: double }
+    pctIrMax: { type: number, format: double }

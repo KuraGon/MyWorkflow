@@ -1,0 +1,33 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+/* Carte blanche avec coins arrondis comme ta maquette */
+.saamp-card {
+  @apply bg-white rounded-3xl border border-slate-200 shadow-sm;
+}
+
+/* Boutons violets SAAMP */
+.saamp-btn-primary {
+  @apply rounded-full px-6 py-2 font-medium text-sm;
+  @apply text-white bg-[#5b1e66] hover:bg-[#4a1754];
+  @apply shadow-sm;
+}
+
+/* Bouton secondaire gris clair */
+.saamp-btn-secondary {
+  @apply rounded-full px-4 py-2 font-medium text-sm;
+  @apply border-slate-300 text-slate-700 bg-white hover:bg-slate-50;
+}
+
+/* Table header / cells */
+.saamp-th {
+  @apply text-xs font-semibold text-slate-500 uppercase tracking-wide text-left;
+  padding: 0.75rem 1rem;
+}
+
+.saamp-td {
+  @apply text-sm text-slate-800;
+  padding: 0.65rem 1rem;
+}

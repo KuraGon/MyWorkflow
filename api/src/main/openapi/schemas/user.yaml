@@ -1,0 +1,20 @@
+# Contient les DTOs relatifs aux utilisateurs
+
+User:
+  type: object
+  properties:
+    id: { type: string, format: uuid }
+    erpId: { type: integer, format: int32, nullable: true }
+    lastName: { type: string, maxLength: 120 }
+    firstName: { type: string, maxLength: 120 }
+    company: { type: string, maxLength: 120 }
+    email: { type: string, format: email, maxLength: 255 }
+    username: { type: string, maxLength: 120, nullable: true }
+  required: [ email ]
+UserSyncResponse:
+  type: object
+  properties:
+    success: { type: boolean }
+    message: { type: string }
+    usersProcessed: { type: integer, description: "Nombre d'utilisateurs créés ou mis à jour" }
+    groupsIgnored: { type: integer, description: "Nombre de lignes ignorées (car c'étaient des groupes)" }

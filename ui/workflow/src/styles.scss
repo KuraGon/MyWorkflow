@@ -1,0 +1,167 @@
+@use '@angular/material' as mat;
+@use './styles/themes/theme-colors' as theme-colors;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@include mat.core();
+
+$saamp-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: theme-colors.$primary-palette,
+    tertiary: theme-colors.$tertiary-palette,
+  ),
+  typography: (
+    use-system-variables: true,
+  ),
+  density: (
+    scale: -2,
+  ),
+));
+
+@include mat.all-component-themes($saamp-theme);
+
+/* -------------------------------------------------------------------------- */
+/* Base / Layout fixes (évite double scrollbar + fond discret)                 */
+/* -------------------------------------------------------------------------- */
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+
+  /* IMPORTANT : évite la double scrollbar (body + mat-sidenav-content) */
+  overflow: hidden;
+
+  color: var(--mat-sys-on-surface, #0f172a);
+  background: var(--mat-sys-surface, #ffffff);
+}
+
+/* Fond décoratif très léger (ne touche pas au layout) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(900px 500px at 10% 0%,
+      color-mix(in srgb, var(--mat-sys-tertiary, #a855f7) 10%, transparent),
+      transparent 60%),
+    radial-gradient(900px 500px at 90% 10%,
+      color-mix(in srgb, var(--mat-sys-primary, #6366f1) 10%, transparent),
+      transparent 65%),
+    linear-gradient(180deg,
+      #f8fafc 0%,
+      #ffffff 55%,
+      #f1f5f9 100%);
+}
+
+/* Le container prend toute la hauteur et c'est lui qui gère le scroll */
+mat-sidenav-container,
+.mat-drawer-container {
+  height: 100vh;
+  background: transparent !important;
+}
+
+/* Le scroll doit être dans le content (pas sur body) */
+.mat-drawer-content,
+.mat-sidenav-content {
+  height: 100%;
+  overflow: auto;
+  background: transparent;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Sidenav / Toolbar : sobre mais moins "fade"                                 */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  --saamp-border: color-mix(in srgb, var(--mat-sys-outline-variant, #cbd5e1) 55%, transparent);
+  --saamp-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 12px 30px rgb(0 0 0 / 0.08);
+}
+
+/* Sidenav */
+.mat-drawer,
+.mat-sidenav {
+  background: #ffffff !important;
+  border-right: 1px solid var(--saamp-border);
+  box-shadow: 0 0 0 rgb(0 0 0 / 0);
+}
+
+/* Toolbar */
+.mat-mdc-toolbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--saamp-border);
+}
+
+/* List/menu gauche : hover + selected (sans pseudo-éléments qui cassent) */
+.mat-mdc-nav-list .mat-mdc-list-item,
+.mat-mdc-list .mat-mdc-list-item {
+  border-radius: 12px;
+  margin: 2px 8px;
+}
+
+.mat-mdc-nav-list .mat-mdc-list-item:hover,
+.mat-mdc-list .mat-mdc-list-item:hover {
+  background: color-mix(in srgb, var(--mat-sys-primary, #6366f1) 8%, transparent);
+}
+
+.mat-mdc-nav-list .mdc-list-item--selected,
+.mat-mdc-list .mdc-list-item--selected {
+  background: color-mix(in srgb, var(--mat-sys-primary, #6366f1) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--mat-sys-primary, #6366f1);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Utilitaires (optionnels, si tu veux wrapper tes pages)                      */
+/* -------------------------------------------------------------------------- */
+
+.surface {
+  background: #ffffff;
+  border: 1px solid var(--saamp-border);
+  border-radius: 16px;
+  box-shadow: var(--saamp-shadow);
+}
+
+/* Ton style card existant, rendu un peu plus clean */
+.card {
+  border-radius: 0.75rem;
+  background-color: rgb(255 255 255 / 1);
+  border: 1px solid var(--saamp-border);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / .08), 0 1px 2px -1px rgb(0 0 0 / .08);
+}
+
+/* Menu */
+.mat-mdc-menu-content {
+  background-color: #F8FAFC;
+}
+
+/* Backdrop */
+.no-backdrop .mat-drawer-backdrop,
+.no-backdrop .mat-sidenav-backdrop {
+  display: none !important;
+}
+
+/* Texte sélectionné (si tu veux) */
+.mat-mdc-list-option.mdc-list-item--selected .mdc-list-item__primary-text,
+.mat-mdc-list-option.mdc-list-item--selected .mdc-list-item__secondary-text {
+  color: #211021 !important;
+}
+
+/* ---------- Angular Material MDC + Tailwind fix (outline notch) ---------- */
+/* Tailwind preflight met label { display:block } -> ça casse la notch */
+.mat-mdc-form-field .mdc-floating-label {
+  display: inline-flex !important;
+}
+
+/* Fix du trait vertical (bordure interne de la notch) */
+.mat-mdc-form-field .mdc-notched-outline__notch {
+  border-left: 0 !important;
+  border-right: 0 !important;
+}

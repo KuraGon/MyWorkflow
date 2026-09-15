@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-users
+      author: BBO
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true } }
+              - column: { name: erp_id, type: int }
+              - column: { name: lastname, type: varchar(120) }
+              - column: { name: firstname, type: varchar(120) }
+              - column: { name: email, type: varchar(255), constraints: { unique: true, nullable: false } }
+              - column: { name: password, type: varchar(255), constraints: { nullable: false } }
+        - createIndex:
+            indexName: idx_users_email
+            tableName: users
+            unique: true
+            columns:
+              - column: { name: email }
+      rollback:
+        - dropTable:
+            tableName: users

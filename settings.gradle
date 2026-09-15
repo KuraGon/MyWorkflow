@@ -1,0 +1,3 @@
+rootProject.name = "workflow"
+include("api", "workflow-db", "web-api", "ui", "olddb", "proconcept")
+include 'proconcept'

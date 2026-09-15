@@ -1,0 +1,43 @@
+:host { display: block; }
+
+/* tooltips compacts */
+::ng-deep .mat-mdc-tooltip-panel .mdc-tooltip__surface {
+  padding: 6px 8px !important;
+  font-size: 12px !important;
+}
+
+/* item actif: fond subtil */
+.nav-item.active {
+  background: color-mix(in srgb, #f8fafc 70%, transparent);
+}
+.dark .nav-item.active {
+  background: color-mix(in srgb, #111827 40%, transparent);
+}
+
+/* mode rail (mini) : uniquement les icônes, densité réduite, pas de scrollbar */
+.sidebar.is-collapsed {
+  overflow-y: hidden;                /* 🚫 pas de scroll vertical en mini */
+}
+.sidebar.is-collapsed .nav-item {
+  justify-content: center;
+  padding: .5rem 0;                  /* densifie pour faire tenir sans scroll */
+}
+.sidebar.is-collapsed .nav-item mat-icon {
+  margin: 0 !important;
+}
+.sidebar.is-collapsed .active-bar {  /* on garde l’indication active (fine) */
+  left: 6px;
+}
+
+/* masquer proprement la scrollbar quand non-collapsed (si tu veux aussi) */
+.sidebar::-webkit-scrollbar { width: 8px; }
+.sidebar::-webkit-scrollbar-thumb { background: transparent; }
+
+.sidebar-logo { border-bottom: 1px solid rgba(100,116,139,.12); }
+
+.sidebar.is-collapsed { overflow-y: hidden; }        /* pas de scroll en mini */
+.sidebar.is-collapsed .nav-item { justify-content: center; padding: .5rem 0; }
+.sidebar.is-collapsed .nav-item mat-icon { margin: 0 !important; }
+.sidebar {
+  border-top-right-radius: 0;
+}

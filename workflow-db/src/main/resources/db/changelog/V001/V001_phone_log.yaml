@@ -1,0 +1,81 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-phone-logs
+      author: BBO
+      changes:
+        - createTable:
+            tableName: phone_logs
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: forfait_contact_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+              - column:
+                  name: caller_contact_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+              - column:
+                  name: destination_contact_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+              - column:
+                  name: event_date
+                  type: timestamp
+              - column:
+                  name: type
+                  type: varchar(20)
+              - column:
+                  name: direction
+                  type: varchar(10)
+              - column:
+                  name: zone_client
+                  type: varchar(50)
+              - column:
+                  name: call_type
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: duration_sec
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quantity_octets
+                  type: decimal(10,2)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cost_ht
+                  type: decimal(10,2)
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: phone_logs
+            baseColumnNames: forfait_contact_id
+            referencedTableName: phone_contacts
+            referencedColumnNames: id
+            constraintName: fk_phone_logs_forfait_contact
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_logs
+            baseColumnNames: caller_contact_id
+            referencedTableName: phone_contacts
+            referencedColumnNames: id
+            constraintName: fk_phone_logs_caller_contact
+
+        - addForeignKeyConstraint:
+            baseTableName: phone_logs
+            baseColumnNames: destination_contact_id
+            referencedTableName: phone_contacts
+            referencedColumnNames: id
+            constraintName: fk_phone_logs_destination_contact

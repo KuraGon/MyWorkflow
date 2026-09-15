@@ -1,0 +1,568 @@
+# Contient tous les DTOs relatifs à la téléphonie
+
+PhoneLog:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    forfaitMobile:
+      type: string
+      example: '33651440897'
+    eventDate:
+      type: string
+      format: date-time
+      example: '2025-09-04T03:36:02'
+    type:
+      type: string
+      example: SMS
+    direction:
+      type: string
+      example: Emis
+    appelant:
+      $ref: '#/PhoneUserLite'
+    destination:
+      $ref: '#/PhoneUserLite'
+    zoneClient:
+      type: string
+      example: France
+    callType:
+      type: string
+      nullable: true
+      example: Voix
+    durationSec:
+      type: integer
+      nullable: true
+      example: 120
+    quantityOctets:
+      type: number
+      format: float
+      nullable: true
+      example: 0.0
+    costHt:
+      type: number
+      format: float
+      nullable: true
+      example: 0.0
+PhoneLogImportResult:
+  type: object
+  description: Résultat de l'import de fichiers CSV de logs téléphoniques
+  properties:
+    fileCount:
+      type: integer
+      format: int32
+      description: Nombre de fichiers reçus
+      example: 2
+    totalRows:
+      type: integer
+      format: int64
+      description: Nombre total de lignes lues
+      example: 2500
+    importedRows:
+      type: integer
+      format: int64
+      description: Nombre de lignes importées
+      example: 2480
+    errors:
+      type: array
+      description: Liste des erreurs rencontrées
+      items:
+        type: string
+        example: 'Fichier mobile_oct.csv ligne 42 : ...'
+  required:
+    - fileCount
+    - totalRows
+    - importedRows
+    - errors
+PhoneLogImportHistory:
+  type: object
+  description: Entrée d'historique d'import de fichier
+  properties:
+    id:
+      type: string
+      format: uuid
+    fileName:
+      type: string
+    checksum:
+      type: string
+      description: Empreinte SHA-256
+    sizeBytes:
+      type: integer
+      format: int64
+    importedAt:
+      type: string
+      format: date-time
+    status:
+      type: string
+      description: IN_PROGRESS
+      SUCCESS: null
+      FAILED: null
+    message:
+      type: string
+      nullable: true
+  required:
+    - id
+    - fileName
+    - checksum
+    - sizeBytes
+    - importedAt
+    - status
+PhoneContact:
+  type: object
+  description: Référence de numéro de téléphone (historique). Contient uniquement
+    l’identifiant et le numéro.
+  properties:
+    id:
+      type: string
+      format: uuid
+    phoneNumber:
+      type: string
+      example: '33651440897'
+  required:
+    - id
+    - phoneNumber
+DashboardStats:
+  type: object
+  properties:
+    kpi:
+      $ref: '#/GlobalKpi'
+    topCommercials:
+      type: array
+      items:
+        $ref: '#/TopCommercialStats'
+    topClients:
+      type: array
+      items:
+        $ref: '#/TopClientStats'
+GlobalKpi:
+  type: object
+  properties:
+    totalCalls:
+      type: integer
+      format: int64
+    totalSms:
+      type: integer
+      format: int64
+    totalCallsWeekEndAndNight:
+      type: integer
+      format: int64
+    totalDurationSec:
+      type: integer
+      format: int64
+    uniqueContactsCount:
+      type: integer
+      format: int64
+TopCommercialStats:
+  type: object
+  properties:
+    name:
+      type: string
+    nbCalls:
+      type: integer
+      format: int64
+    nbSms:
+      type: integer
+      format: int64
+    totalDuration:
+      type: integer
+      format: int64
+TopClientStats:
+  type: object
+  properties:
+    phoneNumber:
+      type: string
+    nbExchanges:
+      type: integer
+      format: int64
+    lastInteraction:
+      type: string
+      format: date-time
+PhoneLogPage:
+  type: object
+  properties:
+    meta:
+      $ref: '../openapi.yaml#/components/schemas/PageMeta'
+    items:
+      type: array
+      items:
+        $ref: '#/PhoneLog'
+  required:
+    - meta
+    - items
+CallCorrespondentStats:
+  type: object
+  properties:
+    number:
+      type: string
+    firstname:
+      type: string
+      nullable: true
+      example: Jean
+      description: Prénom issu de phone_user si disponible.
+    lastname:
+      type: string
+      nullable: true
+      example: Dupont
+      description: Nom issu de phone_user si disponible.
+    company:
+      type: string
+      nullable: true
+      example: Saamp SA
+      description: Company ou dénomination issue de phone_user si disponible.
+    displayName:
+      type: string
+      nullable: true
+      example: Jean Dupont
+      description: Nom d'affichage (si calculé côté API/front).
+    callCount:
+      type: integer
+      format: int64
+    totalDurationSec:
+      type: integer
+      format: int64
+    totalCostHt:
+      type: number
+      format: float
+  required:
+    - number
+    - callCount
+    - totalDurationSec
+    - totalCostHt
+SmsCorrespondentStats:
+  type: object
+  properties:
+    number:
+      type: string
+    firstname:
+      type: string
+      nullable: true
+      example: Jean
+      description: Prénom issu de phone_user si disponible.
+    lastname:
+      type: string
+      nullable: true
+      example: Dupont
+      description: Nom issu de phone_user si disponible.
+    company:
+      type: string
+      nullable: true
+      example: Saamp SA
+      description: Company ou dénomination issue de phone_user si disponible.
+    displayName:
+      type: string
+      nullable: true
+      example: Jean Dupont
+      description: Nom d'affichage (si calculé côté API/front).
+    smsCount:
+      type: integer
+      format: int64
+    totalCostHt:
+      type: number
+      format: float
+  required:
+    - number
+    - smsCount
+    - totalCostHt
+CorrespondentStatsResponse:
+  type: object
+  properties:
+    callStats:
+      type: array
+      items:
+        $ref: '#/CallCorrespondentStats'
+    smsStats:
+      type: array
+      items:
+        $ref: '#/SmsCorrespondentStats'
+  required:
+    - callStats
+    - smsStats
+SalesRepStats:
+  type: object
+  description: Indicateurs détaillés d'un commercial (forfaitContactId) sur une période.
+  properties:
+    commercialId:
+      type: string
+      format: uuid
+    startDate:
+      type: string
+      format: date-time
+      nullable: true
+    endDate:
+      type: string
+      format: date-time
+      nullable: true
+    kpi:
+      $ref: '#/SalesRepKpi'
+    activityByHour:
+      type: array
+      items:
+        $ref: '#/SalesRepHourBucket'
+  required:
+    - commercialId
+    - kpi
+    - activityByHour
+SalesRepKpi:
+  type: object
+  properties:
+    totalCallDurationSec:
+      type: integer
+      format: int64
+      description: Temps d'appel cumulé en secondes
+    totalCalls:
+      type: integer
+      format: int64
+      description: Nombre d'appels (hors SMS)
+    totalCallsWeekEndAndNight:
+      type: integer
+      format: int64
+    uniqueProspects:
+      type: integer
+      format: int64
+      description: Nombre de correspondants uniques (hors internes)
+    ratio:
+      $ref: '#/SalesRepRatio'
+  required:
+    - totalCallDurationSec
+    - totalCalls
+    - uniqueProspects
+    - ratio
+SalesRepRatio:
+  type: object
+  description: Répartition des interactions (clients vs interne vs inconnu) sur la
+    période.
+  properties:
+    totalInteractions:
+      type: integer
+      format: int64
+    clientInteractions:
+      type: integer
+      format: int64
+    internalInteractions:
+      type: integer
+      format: int64
+    unknownInteractions:
+      type: integer
+      format: int64
+    clientPct:
+      type: number
+      format: double
+      description: Pourcentage 0..100
+    internalPct:
+      type: number
+      format: double
+      description: Pourcentage 0..100
+    unknownPct:
+      type: number
+      format: double
+      description: Pourcentage 0..100
+  required:
+    - totalInteractions
+    - clientInteractions
+    - internalInteractions
+    - unknownInteractions
+    - clientPct
+    - internalPct
+    - unknownPct
+SalesRepHourBucket:
+  type: object
+  description: Bucket d'activité par heure (0..23).
+  properties:
+    hour:
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 23
+    callCount:
+      type: integer
+      format: int64
+      description: Nombre d'appels (hors SMS) sur l'heure
+    smsCount:
+      type: integer
+      format: int64
+      description: Nombre de SMS sur l'heure
+    totalCount:
+      type: integer
+      format: int64
+      description: Total interactions sur l'heure
+  required:
+    - hour
+    - callCount
+    - smsCount
+    - totalCount
+PhoneContactPage:
+  type: object
+  description: Page paginée de contacts téléphoniques
+  properties:
+    meta:
+      $ref: '../openapi.yaml#/components/schemas/PageMeta'
+    items:
+      type: array
+      items:
+        $ref: '#/PhoneContact'
+  required:
+    - meta
+    - items
+PhoneContactUpdateRequest:
+  type: object
+  deprecated: true
+  description: 'DEPRECATED: phone_contact ne porte plus d''identité (firstname/lastname/company/label).
+    Utiliser PhoneUserUpsertRequest.'
+  properties:
+    phoneNumber:
+      type: string
+      nullable: true
+      example: '33651440897'
+      description: 'Optionnel: si vous autorisez la correction du numéro (attention
+        historique).'
+PhoneUser:
+  type: object
+  description: Contact métier avec identité (personne physique/morale) et jusqu'à
+    3 numéros (références vers PhoneContact).
+  properties:
+    id:
+      type: string
+      format: uuid
+    firstname:
+      type: string
+      nullable: true
+      example: Jean
+    lastname:
+      type: string
+      nullable: true
+      example: Dupont
+    denomination:
+      type: string
+      nullable: true
+      example: ACME SAS
+    company:
+      type: string
+      nullable: true
+      example: Saamp SA
+    phonePro:
+      $ref: '#/PhoneContact'
+      nullable: true
+    phonePerso:
+      $ref: '#/PhoneContact'
+      nullable: true
+    phoneTelavox:
+      $ref: '#/PhoneContact'
+      nullable: true
+    phoneOther:
+      $ref: '#/PhoneContact'
+      nullable: true
+  required:
+    - id
+PhoneUserLite:
+  type: object
+  description: Contact métier avec identité (personne physique/morale) et jusqu'à
+    3 numéros (références vers PhoneContact).
+  properties:
+    id:
+      type: string
+      format: uuid
+    firstname:
+      type: string
+      nullable: true
+      example: Jean
+    lastname:
+      type: string
+      nullable: true
+      example: Dupont
+    denomination:
+      type: string
+      nullable: true
+      example: ACME SAS
+    company:
+      type: string
+      nullable: true
+      example: Saamp SA
+    phone:
+      $ref: '#/PhoneContact'
+      nullable: true
+PhoneUserUpsertRequest:
+  type: object
+  description: Création/mise à jour d'un PhoneUser (pas de lien avec users). Les numéros
+    sont des IDs de PhoneContact.
+  properties:
+    firstname:
+      type: string
+      nullable: true
+      example: Jean
+    lastname:
+      type: string
+      nullable: true
+      example: Dupont
+    denomination:
+      type: string
+      nullable: true
+      example: ACME SAS
+    company:
+      type: string
+      nullable: true
+      example: Saamp SA
+    phoneProId:
+      type: string
+      format: uuid
+      nullable: true
+    phonePersoId:
+      type: string
+      format: uuid
+      nullable: true
+    phoneTelavoxId:
+      type: string
+      format: uuid
+      nullable: true
+PhoneUserPage:
+  type: object
+  description: Page paginée de phone users
+  properties:
+    meta:
+      $ref: '../openapi.yaml#/components/schemas/PageMeta'
+    items:
+      type: array
+      items:
+        $ref: '#/PhoneUser'
+  required:
+    - meta
+    - items
+PhoneUserMonthlyCaHm:
+      type: object
+      description: >
+        Lien entre un phone user MySAAMP et le cumul de CA_HM
+        pour un mois et une année donnés.
+      properties:
+        phoneUserId:
+          type: string
+          format: uuid
+          description: Identifiant interne du phone user
+        mysaampIdClient:
+          type: integer
+          format: int64
+          example: 10015
+          description: Identifiant client MySAAMP (équivalent cl_ident en old DB)
+        annee:
+          type: integer
+          example: 2025
+          description: Année de la statistique
+        mois:
+          type: integer
+          minimum: 1
+          maximum: 12
+          example: 12
+          description: Mois de la statistique
+        caHm:
+          type: number
+          format: double
+          example: 12345.67
+          description: Cumul de CA_HM sur le mois
+        label:
+          type: string
+          example: "Isabelle Giorgi"
+          description: Libellé lisible du phone user / client
+      required:
+        - phoneUserId
+        - mysaampIdClient
+        - annee
+        - mois
+        - caHm

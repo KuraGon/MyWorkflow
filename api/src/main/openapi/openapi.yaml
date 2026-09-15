@@ -1,0 +1,490 @@
+openapi: 3.0.3
+info:
+  title: Saamp Web API
+  version: 1.0.0
+tags:
+  - name: Users
+    description: API pour la gestion des utilisateurs
+  - name: PhoneLogs
+    description: API pour les logs et statistiques de téléphonie
+  - name: Pricing
+    description: API pour la consultation des tarifs de l'ERP Oracle (Pricing)
+
+paths:
+  # --- Endpoints Utilisateurs ---
+  /api/users/{id}:
+    get:
+      tags: [Users]
+      operationId: getUserById
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: './schemas/user.yaml#/User' } } } } # *
+        '404': { description: Not found }
+
+  # --- Endpoints Téléphonie ---
+  /phone-logs/import:
+    post:
+      summary: Importer des fichiers CSV de logs téléphoniques
+      operationId: importPhoneLogs
+      tags: [PhoneLogs]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties: { files: { type: array, items: { type: string, format: binary } } }
+              required: [ files ]
+      responses:
+        '200':
+          description: Résultat de l'import
+          content: { application/json: { schema: { $ref: './schemas/telephony.yaml#/PhoneLogImportResult' } } } # *
+  /phone-logs/imports:
+    get:
+      tags: [PhoneLogs]
+      summary: Récupérer l'historique des imports de fichiers
+      operationId: getPhoneLogImports
+      parameters:
+        - { in: query, name: limit, schema: { type: integer, default: 10 } }
+      responses:
+        '200':
+          description: Historique des imports
+          content: { application/json: { schema: { type: array, items: { $ref: './schemas/telephony.yaml#/PhoneLogImportHistory' } } } } # *
+  /phone-contacts:
+    get:
+      tags: [ PhoneLogs ]
+      summary: Liste des contacts / lignes téléphoniques
+      operationId: getPhoneContacts
+      responses:
+        '200':
+          description: Liste des contacts téléphoniques
+          content: { application/json: { schema: { type: array, items: { $ref: './schemas/telephony.yaml#/PhoneUser' } } } } # *
+  /phone-user/{phoneUserId}:
+    get:
+      tags: [ PhoneLogs ]
+      summary: Details Phone User
+      operationId: getPhoneUsersDetail
+      parameters:
+        - name: phoneUserId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Details Phone User
+          content:
+            application/json:
+              schema: { $ref: './schemas/telephony.yaml#/PhoneUser' }
+  /phone-users:
+    get:
+      tags: [ PhoneLogs ]
+      summary: Liste paginée des phone users
+      description: >
+        Retourne la liste paginée des phone users avec possibilité de recherche
+        sur nom, prénom, denomination, company et numéros de téléphone.
+      operationId: getPhoneUsersPage
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Index de page (0-based)
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 25
+          description: Taille de page
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+            Texte de recherche (nom, prénom, denomination, company, téléphone)
+      responses:
+        "200":
+          description: Page de phone users
+          content:
+            application/json:
+              schema: { $ref: './schemas/telephony.yaml#/PhoneUserPage' }
+  /phone-users/{mysaampIdClient}:
+    get:
+      tags: [ PhoneLogs ]
+      summary: Liste paginée des phone users
+      description: >
+        Retourne la liste paginée des phone users avec possibilité de recherche
+        sur nom, prénom, denomination, company et numéros de téléphone.
+      operationId: getPhoneUsersPageWithClIdent
+      parameters:
+        - name: mysaampIdClient
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Index de page (0-based)
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 25
+          description: Taille de page
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+            Texte de recherche (nom, prénom, denomination, company, téléphone)
+      responses:
+        "200":
+          description: Page de phone users
+          content:
+            application/json:
+              schema: { $ref: './schemas/telephony.yaml#/PhoneUserPage' }
+  /phone-users/{phoneUserId}/stats/ca-hm:
+    get:
+      tags: [ PhoneLogs ]
+      operationId: getPhoneUserStats
+      summary: CA_HM mensuel par phone user
+      description:
+        Retourne le cumul de CA_HM pour chaque phone user lié
+        à un client MySAAMP sur un mois et une année donnés.
+      parameters:
+        - name: phoneUserId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: annee
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 2025
+        - name: mois
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+            example: 12
+      responses:
+        "200":
+          description: Statistique mensuelle du phone user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhoneUserMonthlyCaHm"
+  /phone-logs/dashboard:
+    get:
+      tags: [PhoneLogs]
+      summary: Récupérer les KPIs et statistiques pour le dashboard
+      operationId: getDashboardStats
+      parameters:
+        - { in: query, name: startDate, schema: { type: string, format: date-time } }
+        - { in: query, name: endDate, schema: { type: string, format: date-time } }
+        - { in: query, name: commercialId, schema: { type: string, format: uuid } }
+        - { in: query, name: type, schema: { type: string, enum: [ ALL, APPEL, SMS ], default: ALL } }
+      responses:
+        '200':
+          description: Statistiques agrégées
+          content: { application/json: { schema: { $ref: './schemas/telephony.yaml#/DashboardStats' } } } # *
+  /phone-logs/page:
+    get:
+      tags: [PhoneLogs]
+      summary: Récupérer les logs téléphoniques paginés (recommandé)
+      operationId: getPhoneLogsPage
+      parameters:
+        - { in: query, name: forfaitContactId, required: true, schema: { type: string, format: uuid } }
+        - { in: query, name: startDate, schema: { type: string, format: date-time }, description: "Filtre période (optionnel)" }
+        - { in: query, name: endDate, schema: { type: string, format: date-time }, description: "Filtre période (optionnel)" }
+        - { in: query, name: page, schema: { type: integer, minimum: 0, default: 0 } }
+        - { in: query, name: size, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+      responses:
+        '200':
+          description: Page de logs téléphoniques
+          content:
+            application/json:
+              schema: { $ref: './schemas/telephony.yaml#/PhoneLogPage' }
+  /phone-logs/stats/correspondents:
+    get:
+      tags: [ PhoneLogs ]
+      summary: Stats appels et SMS par correspondant (global), filtré par forfait et période
+      operationId: getCorrespondentStats
+      parameters:
+        - { in: query, name: forfaitContactId, required: true, schema: { type: string, format: uuid } }
+        - { in: query, name: startDate, schema: { type: string, format: date-time } }
+        - { in: query, name: endDate, schema: { type: string, format: date-time } }
+        - { in: query, name: limitCalls, schema: { type: integer, minimum: 1, maximum: 500, default: 50 } }
+        - { in: query, name: limitSms, schema: { type: integer, minimum: 1, maximum: 500, default: 50 } }
+      responses:
+        '200':
+          description: Stats par correspondant
+          content:
+            application/json:
+              schema: { $ref: './schemas/telephony.yaml#/CorrespondentStatsResponse' }
+  /phone/stats/sales-rep:
+    get:
+      tags: [PhoneLogs]
+      summary: Indicateurs détaillés par commercial (KPIs + ratios + activité par heure)
+      operationId: getSalesRepStats
+      parameters:
+        - { in: query, name: commercialId, required: true, schema: { type: string, format: uuid } }
+        - { in: query, name: startDate, schema: { type: string, format: date-time } }
+        - { in: query, name: endDate, schema: { type: string, format: date-time } }
+      responses:
+        '200':
+          description: Statistiques du commercial sur la période
+          content: { application/json: { schema: { $ref: './schemas/telephony.yaml#/SalesRepStats' } } }
+  /phone-contacts/page:
+    get:
+      tags: [PhoneContacts]
+      summary: Liste paginée des contacts téléphoniques (avec filtre)
+      operationId: getPhoneContactsPage
+      parameters:
+        - in: query
+          name: q
+          required: false
+          schema: { type: string }
+          description: Filtre texte (numéro, prénom, nom, société)
+        - in: query
+          name: page
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - in: query
+          name: size
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 200, default: 25 }
+      responses:
+        '200':
+          description: Page de contacts
+          content:
+            application/json:
+              schema: { $ref: './schemas/telephony.yaml#/PhoneContactPage' }
+  /phone-contacts/{id}:
+    get:
+      tags: [ PhoneContacts ]
+      summary: Get le contact lié a l'id
+      operationId: getPhoneContact
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Contact
+          content:
+            application/json:
+              schema: { $ref: './schemas/telephony.yaml#/PhoneUser' }
+    put:
+      tags: [PhoneContacts]
+      summary: Mettre à jour les informations d'un contact téléphonique
+      operationId: updatePhoneContact
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/telephony.yaml#/PhoneContactUpdateRequest' }
+      responses:
+        '200':
+          description: Contact mis à jour
+          content:
+            application/json:
+              schema: { $ref: './schemas/telephony.yaml#/PhoneContact' }
+  # --- Endpoints Tarifs (Pricing) ---
+  /pricing/p:
+    get:
+      tags: [Pricing]
+      summary: Récupérer tous les tarifs de base 'P' (par fourchette de %)
+      operationId: getTarifsAffinageP
+      responses:
+        '200':
+          description: Liste des tarifs 'P'
+          content:
+            application/json: { schema: { type: array, items: { $ref: './schemas/pricing.yaml#/TarifAffinageP' } } }
+
+  /pricing/p/details:
+    get:
+      tags: [Pricing]
+      summary: Récupérer les détails de tarifs 'P' (affinage, analyse, etc.) par codes
+      operationId: getTarifsPDetailsByCodes
+      parameters:
+        - { in: query, name: codeTarifAff, schema: { type: string } }
+        - { in: query, name: codeTarifAna, schema: { type: string } }
+        - { in: query, name: codeTarifHom, schema: { type: string } }
+        - { in: query, name: codeTarifPre, schema: { type: string } }
+      responses:
+        '200':
+          description: Listes des détails de tarifs correspondants
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/pricing.yaml#/TarifsPDetailsResponse'
+
+  /pricing/f:
+    get:
+      tags: [Pricing]
+      summary: Récupérer tous les tarifs de base 'F' (par fourchette de %)
+      operationId: getTarifsAffinageF
+      responses:
+        '200':
+          description: Liste des tarifs 'F'
+          content:
+            application/json: { schema: { type: array, items: { $ref: './schemas/pricing.yaml#/TarifAffinageF' } } }
+  /pricing/f/details:
+    get:
+      tags: [Pricing]
+      summary: Récupérer les détails de tarifs 'F' par code
+      operationId: getTarifsFDetailsByCode
+      parameters:
+        - { in: query, name: codeTarif, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Liste des détails de tarifs 'F'
+          content:
+            application/json: { schema: { type: array, items: { $ref: './schemas/pricing.yaml#/TarifAffinageFDet' } } }
+  /pricing/natures:
+    get:
+      tags: [ PricingAdmin ]
+      summary: (Étape 1) Récupérer la liste de toutes les natures de déchets
+      operationId: getNatures
+      responses:
+        '200':
+          description: "Liste des natures (ex: '5 - fonte complexe')"
+          content:
+            application/json: { schema: { type: array, items: { $ref: './schemas/pricing.yaml#/Nature' } } }
+  /pricing/rules:
+    get:
+      tags: [ PricingAdmin ]
+      summary: (Étape 3) Récupérer les règles basées sur la Nature et le Type
+      operationId: getRules
+      parameters:
+        - { in: query, name: natureId, required: true, schema: { type: string } }
+        - { in: query, name: type, required: true, schema: { type: string, enum: [ FORFAIT, PRESTATION ] } }
+      responses:
+        '200':
+          description: "Liste des règles correspondantes (ex: 'Or 60-100%')"
+          content:
+            application/json: { schema: { type: array, items: { $ref: './schemas/pricing.yaml#/TarifRule' } } }
+  /pricing/grids/{ruleType}/{ruleCode}:
+    get:
+      tags: [ PricingAdmin ]
+      summary: (Étape 4) Récupérer la grille de prix pour une règle spécifique
+      operationId: getPriceGrid
+      parameters:
+        - { in: path, name: ruleType, required: true, schema: { type: string, enum: [ FORFAIT, PRESTATION ] } }
+        - { in: path, name: ruleCode, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "La grille de prix éditable"
+          content:
+            application/json: { schema: { $ref: './schemas/pricing.yaml#/PriceGrid' } }
+    put:
+      tags: [ PricingAdmin ]
+      summary: (Étape 4 - Sauvegarde) Mettre à jour une grille de prix
+      operationId: updatePriceGrid
+      parameters:
+        - { in: path, name: ruleType, required: true, schema: { type: string, enum: [ FORFAIT, PRESTATION ] } }
+        - { in: path, name: ruleCode, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json: { schema: { $ref: './schemas/pricing.yaml#/PriceGrid' } }
+      responses:
+        '200':
+          description: "Grille mise à jour"
+          content:
+            application/json: { schema: { $ref: './schemas/pricing.yaml#/PriceGrid' } }
+        '400':
+          description: "Validation échouée (ex: chevauchement de poids)"
+  /api/users/sync:
+    post:
+      tags: [Users]
+      summary: Lancer la synchronisation des utilisateurs (Oracle -> Postgres)
+      description: Importe les utilisateurs ayant un PC_COMP_ID valide. Met à jour les existants.
+      operationId: syncUsersFromLegacy
+      responses:
+        '200':
+          description: Synchronisation terminée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSyncResponse'
+
+# --- Section des Composants (Référencement) ---
+components:
+  schemas:
+    # Domaine Utilisateur
+    User: { $ref: './schemas/user.yaml#/User' }
+    UserSyncResponse: { $ref: './schemas/user.yaml#/UserSyncResponse' }
+
+    # Domaine Téléphonie
+    PhoneLog: { $ref: './schemas/telephony.yaml#/PhoneLog' }
+    PhoneLogPage: { $ref: './schemas/telephony.yaml#/PhoneLogPage' }
+    PhoneLogImportResult: { $ref: './schemas/telephony.yaml#/PhoneLogImportResult' }
+    PhoneLogImportHistory: { $ref: './schemas/telephony.yaml#/PhoneLogImportHistory' }
+    PhoneContact: { $ref: './schemas/telephony.yaml#/PhoneContact' }
+    PhoneUser: { $ref: './schemas/telephony.yaml#/PhoneUser' }
+    PhoneUserMonthlyCaHm: { $ref: './schemas/telephony.yaml#/PhoneUserMonthlyCaHm' }
+    PhoneUserLite: { $ref: './schemas/telephony.yaml#/PhoneUserLite' }
+    DashboardStats: { $ref: './schemas/telephony.yaml#/DashboardStats' }
+    GlobalKpi: { $ref: './schemas/telephony.yaml#/GlobalKpi' }
+    TopCommercialStats: { $ref: './schemas/telephony.yaml#/TopCommercialStats' }
+    TopClientStats: { $ref: './schemas/telephony.yaml#/TopClientStats' }
+    CallCorrespondentStats: { $ref: './schemas/telephony.yaml#/CallCorrespondentStats' }
+    SmsCorrespondentStats: { $ref: './schemas/telephony.yaml#/SmsCorrespondentStats' }
+    CorrespondentStatsResponse: { $ref: './schemas/telephony.yaml#/CorrespondentStatsResponse' }
+
+    # Domaine Tarification (Oracle)
+    Nature: { $ref: './schemas/pricing.yaml#/Nature' }
+    TarifRule: { $ref: './schemas/pricing.yaml#/TarifRule' }
+    PriceGrid: { $ref: './schemas/pricing.yaml#/PriceGrid' }
+    PriceBreak: { $ref: './schemas/pricing.yaml#/PriceBreak' }
+
+    # DTOs de base (pour référence si nécessaire)
+    TarifAffinageP: { $ref: './schemas/pricing.yaml#/TarifAffinageP' }
+    TarifAffinagePAff: { $ref: './schemas/pricing.yaml#/TarifAffinagePAff' }
+    TarifAffinagePAna: { $ref: './schemas/pricing.yaml#/TarifAffinagePAna' }
+    TarifAffinagePHom: { $ref: './schemas/pricing.yaml#/TarifAffinagePHom' }
+    TarifAffinagePPre: { $ref: './schemas/pricing.yaml#/TarifAffinagePPre' }
+    TarifAffinageF: { $ref: './schemas/pricing.yaml#/TarifAffinageF' }
+    TarifAffinageFDet: { $ref: './schemas/pricing.yaml#/TarifAffinageFDet' }
+
+    PageMeta:
+      type: object
+      properties:
+        page: { type: integer, example: 0 }
+        size: { type: integer, example: 50 }
+        totalElements: { type: integer, format: int64, example: 12345 }
+        totalPages: { type: integer, example: 247 }
+        hasNext: { type: boolean, example: true }
+        hasPrev: { type: boolean, example: false }
+      required: [ page, size, totalElements, totalPages, hasNext, hasPrev ]

@@ -1,0 +1,425 @@
+<div class="min-h-[calc(100vh-1rem)] from-slate-50 to-white px-4 py-6 sm:px-6">
+  <!-- Header -->
+  <div class="mx-auto flex w-full max-w-6xl items-start justify-between gap-4">
+    <div class="min-w-0">
+      <div class="flex items-center gap-3">
+        <button mat-stroked-button type="button" (click)="goBack()" class="!rounded-xl" aria-label="Retour">
+          <mat-icon>arrow_back</mat-icon>
+          Retour
+        </button>
+
+        <div class="min-w-0">
+          <h1 class="truncate text-2xl font-semibold tracking-tight text-slate-900">User detail</h1>
+          <p class="mt-0.5 text-sm text-slate-500">Informations du phone user + numéros associés.</p>
+        </div>
+      </div>
+    </div>
+
+    <button mat-stroked-button type="button" (click)="reload()" [disabled]="isLoading" class="!rounded-xl">
+      <mat-icon>refresh</mat-icon>
+      Rafraîchir
+    </button>
+  </div>
+
+  <!-- Main card -->
+  <div class="mx-auto mt-6 w-full max-w-6xl">
+    <mat-card class="overflow-hidden rounded-3xl !shadow-none ring-1 ring-slate-200">
+      <!-- Top accent -->
+      <div class="h-1 bg-gradient-to-r from-slate-700/70 via-slate-600/70 to-slate-700/70"></div>
+
+      <!-- Loading -->
+      @if (isLoading) {
+        <div class="bg-white px-6 py-6">
+          <div class="flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-slate-100 animate-pulse"></div>
+            <div class="flex-1">
+              <div class="h-4 w-64 bg-slate-100 rounded animate-pulse"></div>
+              <div class="mt-2 h-3 w-40 bg-slate-100 rounded animate-pulse"></div>
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="h-16 rounded-2xl bg-slate-100 animate-pulse"></div>
+            <div class="h-16 rounded-2xl bg-slate-100 animate-pulse"></div>
+            <div class="h-16 rounded-2xl bg-slate-100 animate-pulse"></div>
+            <div class="h-16 rounded-2xl bg-slate-100 animate-pulse"></div>
+          </div>
+
+          <mat-progress-bar mode="indeterminate" class="mt-6"></mat-progress-bar>
+        </div>
+      }
+
+      <!-- Content -->
+      @if (!isLoading) {
+        <div class="bg-white">
+          <!-- Not found -->
+          @if (!user) {
+            <div class="px-6 py-12 text-center">
+              <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 ring-1 ring-slate-200">
+                <mat-icon class="text-slate-500">person_off</mat-icon>
+              </div>
+              <div class="mt-4 text-base font-semibold text-slate-900">Utilisateur introuvable</div>
+              <div class="mt-1 text-sm text-slate-500">Vérifie l’ID dans l’URL.</div>
+            </div>
+          }
+
+          <!-- Encart infos -->
+          @if (user) {
+            <div class="px-6 py-6">
+              <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div
+                    class="h-12 w-12 rounded-2xl ring-1 ring-inset flex items-center justify-center shadow-sm"
+                    [ngClass]="avatarClass(user)"
+                  >
+                    <span class="text-sm font-semibold">{{ initials(user) }}</span>
+                  </div>
+
+                  <div class="min-w-0">
+                    <div class="truncate text-lg font-semibold text-slate-900">
+                      {{ displayName(user) }}
+                    </div>
+
+                    <div class="mt-1 flex flex-wrap items-center gap-2">
+                      <span
+                        class="inline-flex items-center rounded-full px-2.5 py-1 text-xs ring-1 ring-inset"
+                        [ngClass]="user.company ? 'bg-slate-50 text-slate-700 ring-slate-200' : 'bg-slate-50 text-slate-400 ring-slate-200'"
+                      >
+                        {{ user.company || '—' }}
+                      </span>
+
+                      @if (user?.id) {
+                        <span class="text-xs text-slate-400">ID: {{ user?.id }}</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="!rounded-xl self-start"
+                  (click)="copyAsJson()"
+                  title="Copier la fiche en JSON"
+                >
+                  <mat-icon>data_object</mat-icon>
+                  Copier JSON
+                </button>
+              </div>
+
+              <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
+                  <div class="text-xs font-semibold text-slate-500">Prénom</div>
+                  <div class="mt-1 truncate text-sm font-semibold text-slate-900">
+                    {{ user.firstname || '—' }}
+                  </div>
+                </div>
+
+                <div class="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
+                  <div class="text-xs font-semibold text-slate-500">Nom</div>
+                  <div class="mt-1 truncate text-sm font-semibold text-slate-900">
+                    {{ user.lastname || '—' }}
+                  </div>
+                </div>
+
+                <div class="rounded-2xl bg-white ring-1 ring-slate-200 p-4 sm:col-span-2">
+                  <div class="text-xs font-semibold text-slate-500">Denomination</div>
+                  <div class="mt-1 truncate text-sm font-semibold text-slate-900">
+                    {{ user.denomination || '—' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phones -->
+              <div class="mt-6 rounded-3xl bg-slate-50 ring-1 ring-slate-200 p-5">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2">
+                    <mat-icon class="text-slate-600">call</mat-icon>
+                    <div class="text-sm font-semibold text-slate-900">Téléphones</div>
+                  </div>
+                  <div class="text-xs text-slate-500">Clique sur un badge pour copier</div>
+                </div>
+
+                <div class="mt-4">
+                  @if (phones(user).length) {
+                    <div class="flex flex-wrap gap-2">
+                      @for (p of phones(user); track p.value) {
+                        <button
+                          type="button"
+                          (click)="copyPhone(p.value)"
+                          class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-slate-700 ring-1 ring-slate-200 transition hover:shadow-sm"
+                          [attr.aria-label]="'Copier ' + p.label + ' ' + p.value"
+                          title="Copier le numéro"
+                        >
+                          <span class="text-slate-500">{{ p.label }}</span>
+                          <span class="font-semibold">{{ p.value }}</span>
+                          <mat-icon class="!h-4 !w-4 text-slate-400">content_copy</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <div class="text-sm text-slate-500">Aucun numéro renseigné.</div>
+                  }
+                </div>
+              </div>
+
+              <!-- Stats / Graph -->
+              <!-- ✅ fin du 1er mat-card ici : on ferme le contenu user -->
+            </div>
+          }
+        </div>
+      }
+    </mat-card>
+
+    <!-- ✅ 2e card indépendante pour les stats -->
+    <mat-card class="mt-6 overflow-hidden rounded-3xl !shadow-none ring-1 ring-slate-200">
+      <!-- Top accent -->
+      <div class="h-1 bg-gradient-to-r from-slate-700/70 via-slate-600/70 to-slate-700/70"></div>
+
+      <div class="bg-white px-6 py-6">
+        <!-- Stats / Graph -->
+        <div class="rounded-3xl bg-white p-0">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-slate-700">insights</mat-icon>
+              <div>
+                <div class="text-sm font-semibold text-slate-900">Stats CA/HM</div>
+                <div class="text-xs text-slate-500">Données: 6 derniers mois (ou plus si plage de mois sélectionné)</div>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <!-- ✅ Période (sélection AU MOIS, sans jours) -->
+              <mat-form-field appearance="fill" class="saamp-form-field w-[260px]">
+                <mat-label>Période</mat-label>
+
+                <!-- Input visible : affiche le label custom (rangeLabel) -->
+                <input matInput [value]="rangeLabel" readonly (click)="dpRange.open()" />
+
+                <!-- Input "fantôme" : attache le datepicker sans écraser l'affichage -->
+                <input
+                  matInput
+                  [matDatepicker]="dpRange"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  style="position:absolute; opacity:0; width:0; height:0; pointer-events:none;"
+                />
+
+                <mat-datepicker-toggle matIconSuffix [for]="dpRange"></mat-datepicker-toggle>
+
+                <mat-datepicker
+                  #dpRange
+                  startView="multi-year"
+                  (monthSelected)="pickRangeMonth($event, dpRange)"
+                  panelClass="example-month-picker"
+                ></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+
+          @if (statsLoading) {
+            <mat-progress-bar mode="indeterminate" class="mt-4"></mat-progress-bar>
+          }
+          @if (statsError) {
+            <div class="mt-4 rounded-2xl bg-rose-50 ring-1 ring-rose-200 px-4 py-3 text-sm text-rose-800">
+              {{ statsError }}
+            </div>
+          }
+
+          @if (!statsLoading && !statsError) {
+            <div class="mt-5">
+              <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <!-- KPI -->
+                <div class="rounded-2xl bg-slate-50 ring-1 ring-slate-200 p-4">
+                  <div class="text-xs font-semibold text-slate-500">CA/HM</div>
+                  <div class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+                    {{ formatCaHm(statsTotalCaHm ?? statsCurrent?.caHm) }} €
+                  </div>
+                </div>
+
+                <!-- Meta -->
+                <div class="rounded-2xl bg-slate-50 ring-1 ring-slate-200 p-4">
+                  <div class="text-xs font-semibold text-slate-500">Client</div>
+                  <div class="mt-1 text-sm font-semibold text-slate-900">
+                    {{ statsCurrent?.mysaampIdClient ?? '—' }}
+                  </div>
+
+                  <!-- ✅ Autres users du même mysaampIdClient -->
+                  <div class="mt-3">
+                    <div class="text-xs font-semibold text-slate-500">Autres contacts</div>
+
+                    @if (sameClientLoading) {
+                      <div class="mt-2 text-xs text-slate-500">Chargement…</div>
+                    }
+
+                    @if (sameClientError) {
+                      <div class="mt-2 text-xs text-rose-700">{{ sameClientError }}</div>
+                    }
+
+                    @if (!sameClientLoading && !sameClientError) {
+                      @if (sameClientUsers.length) {
+                        <div class="mt-2 max-h-[120px] overflow-auto pr-1">
+                          <div class="flex flex-wrap gap-2">
+                            @for (u2 of sameClientUsers; track u2.id) {
+                              <button
+                                type="button"
+                                (click)="openPhoneUser(u2)"
+                                class="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[11px] text-slate-700 ring-1 ring-slate-200 hover:shadow-sm"
+                                title="Ouvrir le contact"
+                              >
+                                <span class="font-semibold">{{ displayName(u2) }}</span>
+                                <span class="ml-2 text-slate-400">{{ u2?.company || '' }}</span>
+                              </button>
+                            }
+                          </div>
+                        </div>
+
+                        @if (sameClientTotal != null) {
+                          <div class="mt-2 text-[11px] text-slate-400">Total: {{ sameClientTotal }}</div>
+                        }
+                      } @else {
+                        <div class="mt-2 text-xs text-slate-500">Aucun autre contact.</div>
+                      }
+                    }
+                  </div>
+                </div>
+
+                <!-- Graph -->
+                <div class="rounded-2xl bg-slate-50 ring-1 ring-slate-200 p-4">
+                  <div class="flex items-center justify-between">
+                    <div class="text-xs font-semibold text-slate-500">Tendance (6 mois)</div>
+                    <div class="text-xs text-slate-400">
+                      {{ statsSeries.length ? statsSeries.length + ' pts' : '—' }}
+                    </div>
+                  </div>
+
+                  <div class="mt-3">
+                    <div class="rounded-xl bg-white ring-1 ring-slate-200 p-3">
+                      <svg viewBox="0 0 100 32" class="h-10 w-full">
+                        @if (sparklinePoints) {
+                          <polyline
+                            [attr.points]="sparklinePoints"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            class="text-slate-700"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></polyline>
+                        }
+                      </svg>
+
+                      <div class="mt-2 flex items-center justify-between text-[11px] text-slate-500">
+                        @if (statsSeries[0] != null) {
+                          <span>{{ statsSeries[0]?.mois }}/{{ statsSeries[0]?.annee }}</span>
+                        }
+                        @if (statsCurrent != null) {
+                          <span>{{ statsCurrent?.mois }}/{{ statsCurrent?.annee }}</span>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- ✅ si tu sélectionnes beaucoup de mois, on évite d'allonger la page : scroll sur la liste -->
+                    <div class="mt-3 max-h-[140px] overflow-auto pr-1">
+                      <div class="flex flex-wrap gap-2">
+                        @for (s of statsSeries; track s.mois) {
+                          <span
+                            class="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[11px] text-slate-700 ring-1 ring-slate-200"
+                            title="CA/HM"
+                          >
+                          <span class="text-slate-500 mr-1">{{ s.mois }}/{{ s.annee }}</span>
+                          <span class="font-semibold">{{ formatCaHm(s.caHm) }} €</span>
+                        </span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              @if (!statsSeries.length) {
+                <div class="mt-4 text-sm text-slate-500">
+                  Pas de données pour la période sélectionnée.
+                </div>
+              }
+
+              <!-- ✅ AJOUT : Appels par correspondant (SAAMP) -->
+              <div class="mt-6 rounded-3xl bg-slate-50 ring-1 ring-slate-200 p-5">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2">
+                    <mat-icon class="text-slate-700">call</mat-icon>
+                    <div>
+                      <div class="text-sm font-semibold text-slate-900">Appels par correspondant (SAAMP)</div>
+                      <div class="text-xs text-slate-500">Commerciaux ayant communiqué avec ce client sur la période</div>
+                    </div>
+                  </div>
+                </div>
+
+                @if (correspondentLoading) {
+                  <mat-progress-bar mode="indeterminate" class="mt-4"></mat-progress-bar>
+                }
+
+                @if (correspondentError) {
+                  <div class="mt-4 rounded-2xl bg-rose-50 ring-1 ring-rose-200 px-4 py-3 text-sm text-rose-800">
+                    {{ correspondentError }}
+                  </div>
+                }
+
+                @if (!correspondentLoading && !correspondentError) {
+                  @if (correspondentCallSaamp.length) {
+                    <div class="mt-4 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
+                      <div class="max-h-[360px] overflow-auto">
+                        <table class="w-full text-sm">
+                          <thead class="sticky top-0 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
+                          <tr class="border-b border-slate-100">
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Numéro</th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600">NB</th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600">Durée</th>
+                          </tr>
+                          </thead>
+
+                          <tbody>
+                            @for (c of correspondentCallSaamp; track c.number) {
+                              <tr class="border-b border-slate-50 hover:bg-slate-50/60">
+                                <td class="px-4 py-3">
+                                  <div class="flex items-center justify-between gap-3">
+                                    <div class="min-w-0">
+                                      <div class="truncate font-semibold text-slate-900">
+                                        {{ correspondentLabel(c) }}
+                                      </div>
+                                      <div class="mt-1">
+                                        <span class="inline-flex items-center rounded-full bg-slate-50 px-2.5 py-1 text-[11px] text-slate-700 ring-1 ring-slate-200">
+                                          {{ c.number }}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+
+                                <td class="px-4 py-3 text-right font-semibold text-slate-900">
+                                  {{ c.callCount }}
+                                </td>
+
+                                <td class="px-4 py-3 text-right text-slate-700">
+                                  {{ formatDuration(c.totalDurationSec) }}
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="mt-4 text-sm text-slate-500">Aucun appel SAAMP sur la période.</div>
+                  }
+                }
+              </div>
+              <!-- /AJOUT -->
+            </div>
+          }
+        </div>
+        <!-- /Stats -->
+      </div>
+    </mat-card>
+  </div>
+</div>

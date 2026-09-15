@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: v003-03-add-cl-ident
+      author: BBO
+      changes:
+        - addColumn:
+            tableName: phone_user
+            columns:
+              - column:
+                  name: mysaamp_id_client
+                  type: bigint
+                  constraints:
+                    nullable: true

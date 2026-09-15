@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-phone-contacts
+      author: BBO
+      changes:
+        - createTable:
+            tableName: phone_contacts
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: phone_number
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: firstname
+                  type: varchar(120)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: lastname
+                  type: varchar(120)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: company
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: label
+                  type: varchar(120)
+                  constraints:
+                    nullable: true
+
+        - addUniqueConstraint:
+            tableName: phone_contacts
+            columnNames: phone_number
+            constraintName: uq_phone_contacts_phone_number
+
+      rollback:
+        - dropTable:
+            tableName: phone_contacts

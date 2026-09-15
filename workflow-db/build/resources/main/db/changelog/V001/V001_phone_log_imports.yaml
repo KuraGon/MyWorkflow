@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-phone-log-imports
+      author: BBO
+      changes:
+        - createTable:
+            tableName: phone_log_imports
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: file_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: checksum
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: size_bytes
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: imported_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: message
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+
+        - addUniqueConstraint:
+            tableName: phone_log_imports
+            columnNames: checksum
+            constraintName: uq_phone_log_imports_checksum
+
+      rollback:
+        - dropTable:
+            tableName: phone_log_imports

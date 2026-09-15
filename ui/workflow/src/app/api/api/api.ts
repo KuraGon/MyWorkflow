@@ -1,0 +1,11 @@
+export * from './phoneContacts.service';
+import { PhoneContactsService } from './phoneContacts.service';
+export * from './phoneLogs.service';
+import { PhoneLogsService } from './phoneLogs.service';
+export * from './pricing.service';
+import { PricingService } from './pricing.service';
+export * from './pricingAdmin.service';
+import { PricingAdminService } from './pricingAdmin.service';
+export * from './users.service';
+import { UsersService } from './users.service';
+export const APIS = [PhoneContactsService, PhoneLogsService, PricingService, PricingAdminService, UsersService];
