@@ -1,12 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatCardModule],
+  imports: [CommonModule, MatCardModule],
   templateUrl: './auth-layout.component.html',
   styleUrl: './auth-layout.component.scss',
 })

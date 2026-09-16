@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/api/workflow.api.main.iml" filepath="$PROJECT_DIR$/.idea/modules/api/workflow.api.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/olddb/workflow.olddb.main.iml" filepath="$PROJECT_DIR$/.idea/modules/olddb/workflow.olddb.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/proconcept/workflow.proconcept.main.iml" filepath="$PROJECT_DIR$/.idea/modules/proconcept/workflow.proconcept.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/web-api/workflow.web-api.main.iml" filepath="$PROJECT_DIR$/.idea/modules/web-api/workflow.web-api.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/workflow-db/workflow.workflow-db.main.iml" filepath="$PROJECT_DIR$/.idea/modules/workflow-db/workflow.workflow-db.main.iml" />
+    </modules>
+  </component>
+</project>

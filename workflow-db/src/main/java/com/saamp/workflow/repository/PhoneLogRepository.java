@@ -112,8 +112,8 @@ public interface PhoneLogRepository extends JpaRepository<PhoneLogEntity, UUID> 
               where l.caller_contact_id = any(cast(:contactIds as uuid[]))
                 and not (l.destination_contact_id = any(cast(:contactIds as uuid[])))
                 and upper(l.type) <> 'SMS'
-                and (:start is null or l.event_date >= cast(:start as timestamp))
-                and (:end   is null or l.event_date <= cast(:end   as timestamp))
+                and l.event_date >= coalesce(cast(:start as timestamp), '-infinity'::timestamp)
+                and l.event_date <= coalesce(cast(:end as timestamp), 'infinity'::timestamp)
 
               union all
 
@@ -148,8 +148,8 @@ public interface PhoneLogRepository extends JpaRepository<PhoneLogEntity, UUID> 
               where l.destination_contact_id = any(cast(:contactIds as uuid[]))
                 and not (l.caller_contact_id = any(cast(:contactIds as uuid[])))
                 and upper(l.type) <> 'SMS'
-                and (:start is null or l.event_date >= cast(:start as timestamp))
-                and (:end   is null or l.event_date <= cast(:end   as timestamp))
+                and l.event_date >= coalesce(cast(:start as timestamp), '-infinity'::timestamp)
+                and l.event_date <= coalesce(cast(:end as timestamp), 'infinity'::timestamp)
             ),
 
             dedup as (
@@ -208,8 +208,8 @@ public interface PhoneLogRepository extends JpaRepository<PhoneLogEntity, UUID> 
             join phone_contact caller on caller.id = l.caller_contact_id
             where (l.caller_contact_id = any(cast(:contactIds as uuid[])) or l.destination_contact_id = any(cast(:contactIds as uuid[])))
               and upper(l.type) = 'SMS'
-              and (:start is null or l.event_date >= cast(:start as timestamp))
-              and (:end   is null or l.event_date <= cast(:end   as timestamp))
+              and l.event_date >= coalesce(cast(:start as timestamp), '-infinity'::timestamp)
+              and l.event_date <= coalesce(cast(:end as timestamp), 'infinity'::timestamp)
             group by correspondent
             order by smsCount desc
             """,

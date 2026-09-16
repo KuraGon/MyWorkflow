@@ -19,13 +19,13 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    // Active HttpClient + intercepteurs depuis le DI (classes)
+    // HttpClient compatible navigateur + SSR, avec les intercepteurs déclarés dans le DI.
     provideHttpClient(
+      withFetch(),
       withInterceptorsFromDi()
     ),
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withInterceptorsFromDi()),
     {provide: BASE_PATH, useValue: 'http://localhost:8080'},
     {provide: Configuration, useValue: new Configuration({basePath: 'http://localhost:8080'})},
   ],

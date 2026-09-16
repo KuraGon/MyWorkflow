@@ -4,7 +4,6 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatIcon} from '@angular/material/icon';
 import {MatError, MatFormField, MatInput, MatLabel, MatSuffix} from '@angular/material/input';
 import {MatButton, MatIconButton} from '@angular/material/button';
-import {MatCard} from '@angular/material/card';
 import {RouterLink} from '@angular/router';
 import {AuthLayoutComponent} from '../auth-layout.component';
 import {AuthService} from '../../../services/auth.service';
@@ -22,7 +21,6 @@ import {AuthService} from '../../../services/auth.service';
     MatInput,
     MatLabel,
     MatFormField,
-    MatCard,
     ReactiveFormsModule,
     MatButton,
     RouterLink,

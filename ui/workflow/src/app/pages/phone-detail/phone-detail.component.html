@@ -88,8 +88,8 @@
                         {{ user.company || '—' }}
                       </span>
 
-                      @if (user?.id) {
-                        <span class="text-xs text-slate-400">ID: {{ user?.id }}</span>
+                      @if (user.id) {
+                        <span class="text-xs text-slate-400">ID: {{ user.id }}</span>
                       }
                     </div>
                   </div>
@@ -314,7 +314,7 @@
                           <span>{{ statsSeries[0]?.mois }}/{{ statsSeries[0]?.annee }}</span>
                         }
                         @if (statsCurrent != null) {
-                          <span>{{ statsCurrent?.mois }}/{{ statsCurrent?.annee }}</span>
+                          <span>{{ statsCurrent.mois }}/{{ statsCurrent.annee }}</span>
                         }
                       </div>
                     </div>

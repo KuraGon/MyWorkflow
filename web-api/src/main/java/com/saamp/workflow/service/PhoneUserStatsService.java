@@ -4,6 +4,8 @@ import com.saamp.olddb.repository.StatistiqueRepository;
 import com.saamp.workflow.entity.PhoneUserEntity;
 import com.saamp.workflow.repository.PhoneUserRepository;
 import com.workflow.dto.PhoneUserMonthlyCaHmDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class PhoneUserStatsService {
 
@@ -40,13 +43,25 @@ public class PhoneUserStatsService {
         Long clIdent = user.getMysaampIdClient();
 
         // 2) Récupérer les stats agrégées du mois (old db)
-        BigDecimal caHm = statistiqueRepository
-                .sumCaHmByClient(annee, mois)
-                .stream()
-                .filter(a -> clIdent.equals(a.getClIdent()))
-                .map(a -> a.getCaHm() == null ? BigDecimal.ZERO : a.getCaHm())
-                .findFirst()
-                .orElse(BigDecimal.ZERO);
+        BigDecimal caHm;
+        try {
+            caHm = statistiqueRepository
+                    .sumCaHmByClient(annee, mois)
+                    .stream()
+                    .filter(a -> clIdent.equals(a.getClIdent()))
+                    .map(a -> a.getCaHm() == null ? BigDecimal.ZERO : a.getCaHm())
+                    .findFirst()
+                    .orElse(BigDecimal.ZERO);
+        } catch (DataAccessException ex) {
+            // La base historique MySQL n'est pas indispensable au fonctionnement
+            // de l'écran téléphonie. En environnement local, on laisse l'écran
+            // continuer à fonctionner avec un CA/HM à 0 si olddb est indisponible.
+            log.warn(
+                    "Base olddb indisponible pour phoneUserId={} ({}-{}). CA/HM forcé à 0.",
+                    phoneUserId, annee, mois, ex
+            );
+            caHm = BigDecimal.ZERO;
+        }
 
         // 3) Mapper vers le DTO
         PhoneUserMonthlyCaHmDTO dto = new PhoneUserMonthlyCaHmDTO();
